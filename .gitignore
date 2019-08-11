@@ -1,0 +1,7 @@
+*.pyc
+/datastore/
+tokens.json
+/personal
+/research
+/modules
+/research
