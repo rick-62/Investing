@@ -6,3 +6,4 @@ tokens.json
 /modules
 /research
 /.ipynb_checkpoints
+*.csv

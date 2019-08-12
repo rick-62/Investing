@@ -26,6 +26,19 @@ with open('tokens.json', 'r') as f:
     TOKEN = json.load(f)['worldtradingdata']
 
 
+def history(symbol, force_download=False, source='worldtradingdata'):
+    # historic data
+    pass
+
+def stocklist(platform='freetrade', type='etf'):
+    # list of stocks - stored on master csv/xl sheet
+    pass
+
+def stock(symbol, force_download=False, source='worldtradingdata'):
+    # latest data for a stock as json/dict, including some meta data
+    # store locally as JSON
+    pass
+
 def _download_historic_data(symbol, sort='oldest'):
     '''
     retrieves historic data for a target stock, 

@@ -1,5 +1,5 @@
 
-import pytrade.storage
+from pytrade import storage
 import datetime
 import pandas as pd
 
