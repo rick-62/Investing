@@ -1,0 +1,27 @@
+{
+    "config": {
+    
+                "source": {
+                
+                    "worldtradingdata": {
+                        "history_url": "https://api.worldtradingdata.com/api/v1/history?symbol={}&sort={}&api_token={}&output={}",
+                        "stock_url": "https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}"
+                    }
+                },
+
+                "platform": {
+
+                    "freetrade": {
+                        "stocklist": "datastore/freetrade_stocks.csv"
+                    }
+                },
+
+                "storage": {
+
+                    "parent": "datastore",
+                    "historic": "historic"
+
+                }
+            }
+        }
+

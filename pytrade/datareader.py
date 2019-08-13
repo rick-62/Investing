@@ -6,29 +6,55 @@ import json
 import os
 import requests
 import pandas as pd
+from functools import lru_cache
+
+CONFIG = 'config.json'
+TOKENS = 'tokens.json'
 
 
-DATA_DIR = 'datastore'
-HIST_DIR = 'datastore/historic'
-STOCKLST = 'datastore/freetrade_stocks.csv'
-HIST_URL = 'https://api.worldtradingdata.com/api/v1/history?symbol={}&sort={}&api_token={}&output={}'
-STCK_URL = 'https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}'
+@lru_cache(maxsize=8)
+def token(source='worldtradingdata'):
+    '''Retrieves api token for source data and return it as a string'''
+    with open(TOKENS, 'r') as f:
+        return json.load(f)[source]
 
 
-# create directories if don't exist
-try:
-    os.makedirs(HIST_DIR)
-except FileExistsError:
-    pass
+@lru_cache(maxsize=32)
+def config(*args):
+    '''
+    Extracts target config data, from config json.
 
-# get api token from separate json file
-with open('tokens.json', 'r') as f:
-    TOKEN = json.load(f)['worldtradingdata']
+    Arguments make up path to target
+    e.g. config("platform", "freetrade", "stocklist")
+    returns "datastore/freetrade_stocks.csv" 
+    '''
+    with open(CONFIG, 'r') as f:
+        parent = json.load(f)['config']
+    
+    for child in args:
+        parent = parent.get(child)
+    
+    return parent
 
-
+    
 def history(symbol, force_download=False, source='worldtradingdata'):
-    # historic data
-    pass
+
+    if force_download:
+        base_url = config('source', source, 'history_url')
+        url = base_url.format(symbol, TOKEN, 'csv')
+        r = requests.get(url)
+
+        # needs completing
+        with open('sample_data.csv', 'w+') as f:
+            f.write(r.text)
+
+        # then return data as pandas dataframe
+        
+    else:
+        # retrieve data - maybe same function for saving
+        # then return data as pandas dataframe 
+        pass
+
 
 def stocklist(platform='freetrade', type='etf'):
     # list of stocks - stored on master csv/xl sheet
