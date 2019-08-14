@@ -38,22 +38,38 @@ def config(*args):
 
     
 def history(symbol, force_download=False, source='worldtradingdata'):
+    '''
+    Retrieves historic data for a target stock, and 
+    returns as a pandas dataframe.
+
+    If force_download is True, data will be downloaded from source
+    and saved locally, else the data will be taken locally. 
+        
+    symbol: requires full symbol for stock e.g. "CS51.L"
+    force_download: boolean
+    source: data downloaded source
+    '''
+
+    directory = '{}/{}.{}'.format(config('storage', 'historic'), 
+                                  symbol, 
+                                  'csv')
 
     if force_download:
         base_url = config('source', source, 'history_url')
-        url = base_url.format(symbol, TOKEN, 'csv')
-        r = requests.get(url)
-
-        # needs completing
-        with open('sample_data.csv', 'w+') as f:
-            f.write(r.text)
-
-        # then return data as pandas dataframe
+        url = base_url.format(symbol, token(source), 'csv')
+        data = pd.read_csv(url, 
+                           sep=',', 
+                           index_col='Date', 
+                           parse_dates=True)
+        data.to_csv(directory)
+        return data
         
     else:
-        # retrieve data - maybe same function for saving
-        # then return data as pandas dataframe 
-        pass
+        data = pd.read_csv(directory, 
+                           sep=',', 
+                           index_col='Date', 
+                           parse_dates=True)
+        return data
 
 
 def stocklist(platform='freetrade', type='etf'):
@@ -65,26 +81,8 @@ def stock(symbol, force_download=False, source='worldtradingdata'):
     # store locally as JSON
     pass
 
-def _download_historic_data(symbol, sort='oldest'):
-    '''
-    retrieves historic data for a target stock, 
-    using World Trading Data as a source. 
-    
-    data returned as a pandas dataframe.
-    
-    symbol: requires symbol for stock
-    sort: specify how the data is ordered
-    '''
-    # print('downloading')
-    url = HIST_URL.format(symbol, sort, TOKEN, 'csv')
-    
-    data = pd.read_csv(url, sep=',', index_col='Date', parse_dates=True)
 
-    if not _store_data(symbol, data):
-        print('Data not stored: Unknown reason')
-    
-    return data
-    
+
 
 def get_latest_data(symbols=[]):
 
@@ -114,7 +112,6 @@ def _store_data(symbol, data, file_type='csv'):
     data: Pandas dataframe of data to store
     file_type: currently only csv
     '''
-    # print('storing')
     directory = '{}/{}.{}'.format(HIST_DIR, symbol, file_type)
     
     if file_type == 'csv':
