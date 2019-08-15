@@ -5,7 +5,9 @@
                 
                     "worldtradingdata": {
                         "history_url": "https://api.worldtradingdata.com/api/v1/history?symbol={}&sort={}&api_token={}&output={}",
-                        "stock_url": "https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}"
+                        "stock_url": "https://api.worldtradingdata.com/api/v1/stock?symbol={}&api_token={}",
+                        "limit_per_request": 5
+
                     }
                 },
 

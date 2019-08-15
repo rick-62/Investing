@@ -1,4 +1,4 @@
-﻿i,Type,Name,Provider,Ticker,Description,Annual charge,Entry/exit fee,World Trading Data,Index
+﻿i,Type,Name,Provider,Ticker,Description,Annual charge,Entry/exit fee,symbol,Index
 1,Stock,EURO STOXX 50,iShares (Blackrock),CS51,50 Biggest Euro Companies (excluding UK),0.10%,,CS51.L,^SX5E
 2,Stock,EURO STOXX Div,iShares (Blackrock),IDVY,30 European companies with high dividend yield,0.40%,,IDVY.L,
 3,Stock,FTSE 100,iShares (Blackrock),ISF,100 largest UK companies,0.07%,,ISF.L,^UKX
