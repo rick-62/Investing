@@ -1,59 +1,69 @@
 
-from pytrade import storage
-import datetime
+from pytrade import datareader
+from datetime import datetime as dt
 import pandas as pd
 
-def get(symbol, force_download=False, local_only=True):
-    '''
-    returns stock as object, containing historic data
-    and useful attributes.
-
-    symbol : name of stock symbol (str)
-    force_download : force redownload data (bool)
-    local_only : don't download any missing or new data (bool)
-    '''
-
-    return Stock(symbol, force_download=force_download, local_only=local_only)
-
-def get_latest_stock_data(symbols):
-    return storage.get_latest_data(symbols)
-
-def symbols():
-    df = pd.read_csv(storage.STOCKLST, index_col='i')
-    return df.Ticker
+def get(stocklist=[], latest_flag=False):
+    stocks = {}
+    for symbol in stocklist:
+        stocks[symbol] = Stock(symbol)
 
 
-class Stock:
+def refresh_latest(stocks={}):
+    latest = datareader.latest(stocks.keys())
+    for symbol, obj in stocks.items():
+        obj._apply_latest_data(latest[symbol])
+
     
+class Stock:
+
     def __init__(self, symbol, **kwargs):
         self.kwargs = kwargs
         self.symbol = symbol
-        self.historic_data = self.fetch_historic_data()
+        self.historic_data = self._fetch_historic_data()
     
-    def fetch_historic_data(self):
-        return storage.get_data(self.symbol, **self.kwargs)
+    def _fetch_historic_data(self, force_download=False):
+        """Retrieves historic data and returns dataframe"""
+        df = datareader.history(self.symbol, 
+                                force_download=force_download) 
+        return df
 
+    def refresh_historic(self):
+        """Download latest historic data and update self"""
+        self.historic_data = self._fetch_historic_data(force_download=True)
+
+    def _apply_latest_data(self, data):
+        self.latest_data = data
+
+    @classmethod
+    def update_stocklist(cls):
+        pass
 
     @property
-    def latest_date(self):
-        return self.historic_data.index.max().date()
-
-    @property
-    def latest_data(self):
-        today = datetime.date.today()
-        latest = self.latest_date
-        return latest == today - datetime.timedelta(days=1)
-
-    def update(self):
-        if self.latest_data:
-            return False
-        else:
-            storage.get_data(self.symbol, force_download=True)
-            return True
+    def name(self):
+        return self.latest_data['name']
 
     @property
     def latest_price(self):
-        return self.historic_data.loc[ self.latest_date, 'Close']
+        return float(self.latest_data['price'])
+
+    @property
+    def currency(self):
+        return self.latest_data['currency']
+
+    @property
+    def latest_date(self):
+        date_as_str = self.latest_data['last_trade_time']
+        date_as_dto = dt.strptime(date_as_str, '%Y-%m-%d %H:%M:%S')
+        return date_as_dto.date()
+        
+
+    
+
+
+
+
+    
 
 
 

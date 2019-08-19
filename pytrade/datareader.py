@@ -79,7 +79,7 @@ def stocklist(platform='freetrade'):
     return df.symbol
 
 
-def stock(symbols=[], source='worldtradingdata'):
+def latest(symbols=[], source='worldtradingdata'):
     """
     Returns the latest transactional data for a list of stocks, 
     including some additional meta data, represented as a dict. 
@@ -100,69 +100,3 @@ def stock(symbols=[], source='worldtradingdata'):
         stocks.update({e['symbol']: e for e in r.json()['data']})
 
     return stocks
-
-
-
-
-def get_latest_data(symbols=[]):
-
-    stocks = []
-
-    # get latest data for 5 stocks at a time
-    n = 5
-    for i in range(0, len(symbols), n):
-        url = STCK_URL.format(chunk, TOKEN)
-        r = requests.get(url)
-        stocks += r.json()['data']
-
-    stocks_dct = {ele['symbol'][:-2]: ele for ele in stocks}
-
-    return stocks_dct    
-
-
-
-def _store_data(symbol, data, file_type='csv'):
-    """
-    Stores data (Pandas dataframe) in an appropiate format.
-    Success returned as Boolean.
-
-    symbol: symbol used for file name
-    data: Pandas dataframe of data to store
-    file_type: currently only csv
-    """
-    directory = '{}/{}.{}'.format(HIST_DIR, symbol, file_type)
-    
-    if file_type == 'csv':
-        data.to_csv(directory)
-    else:
-        return False
-
-    return True
-
-
-def _retrieve_data(symbol, force_download=False, file_type='csv'):
-    # print('retrieving')
-    directory = '{}/{}.{}'.format(HIST_DIR, symbol, file_type)
-
-    if force_download:
-        # print('forced downloading')
-        return _download_historic_data(symbol)
-
-    try:
-        # print('trying to read csv')
-        return pd.read_csv(directory, sep=',', index_col='Date', parse_dates=True)
-    except FileNotFoundError:
-        # print('failed to read csv')
-        return _download_historic_data(symbol)
-
-
-def get_data(symbol, force_download=False, file_type='csv', **kwargs):
-
-    if symbol.startswith('^'):
-        xsymbol = symbol
-    else:
-        xsymbol = symbol + '.L'
-
-    data = _retrieve_data(xsymbol, force_download=force_download, file_type=file_type)
-
-    return data
