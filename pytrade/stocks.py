@@ -1,4 +1,5 @@
 
+import statistics
 from pytrade import datareader
 from datetime import datetime as dt
 import pandas as pd
@@ -7,12 +8,18 @@ def get(stocklist=[], latest_flag=False):
     stocks = {}
     for symbol in stocklist:
         stocks[symbol] = Stock(symbol)
+    
+    if latest_flag:
+        refresh_latest(stocks)  # check this happens in place...
+
+    return stocks
 
 
 def refresh_latest(stocks={}):
     latest = datareader.latest(stocks.keys())
     for symbol, obj in stocks.items():
         obj._apply_latest_data(latest[symbol])
+    return stocks
 
     
 class Stock:
@@ -56,6 +63,26 @@ class Stock:
         date_as_str = self.latest_data['last_trade_time']
         date_as_dto = dt.strptime(date_as_str, '%Y-%m-%d %H:%M:%S')
         return date_as_dto.date()
+
+    @property
+    def start_date(self):
+        return min(self.historic_data.index)
+
+    @property
+    def age(self):
+        return (self.latest_date - self.start_date).days / 365
+
+    def median_return(self, years):
+        df = self.historic_data
+        close_xyrs = df.Close[ df.index.year > max(df.index.year) - years ]
+        inc_lst = []
+        for yr in set(close_xyrs.index.year):
+            yr_close = df.Close[ df.index.year == yr ]
+            increase = (yr_close[-1] - yr_close[0]) / yr_close[0]
+            inc_lst.append(increase)
+        return statistics.median(inc_lst)
+    
+
         
 
     

@@ -90,6 +90,7 @@ def latest(symbols=[], source='worldtradingdata'):
 
     stocks = {}
 
+    symbols = list(symbols)
     n = config('source', source, 'limit_per_request')
     stock_url = config('source', source, 'stock_url')    
 

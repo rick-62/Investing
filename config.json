@@ -21,7 +21,8 @@
                 "storage": {
 
                     "parent": "datastore",
-                    "historic": "historic"
+                    "historic": "datastore/historic",
+                    "latest": "latest.json"
 
                 }
             }
