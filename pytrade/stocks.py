@@ -1,10 +1,12 @@
 
 import statistics
+import matplotlib.pyplot as plt
 from pytrade import datareader
 from datetime import datetime as dt
 import pandas as pd
 
 def get(stocklist=[], latest_flag=False):
+
     stocks = {}
     for symbol in stocklist:
         stocks[symbol] = Stock(symbol)
@@ -42,10 +44,6 @@ class Stock:
     def _apply_latest_data(self, data):
         self.latest_data = data
 
-    @classmethod
-    def update_stocklist(cls):
-        pass
-
     @property
     def name(self):
         return self.latest_data['name']
@@ -66,7 +64,7 @@ class Stock:
 
     @property
     def start_date(self):
-        return min(self.historic_data.index)
+        return min(self.historic_data.index).date()
 
     @property
     def age(self):
