@@ -5,23 +5,34 @@ from pytrade import datareader
 from datetime import datetime as dt
 import pandas as pd
 
-def get(stocklist=[], latest_flag=False):
+def get(stocklist=[], latest_flag=False, refresh_data=False):
 
     stocks = {}
     for symbol in stocklist:
         stocks[symbol] = Stock(symbol)
     
     if latest_flag:
-        refresh_latest(stocks)  # check this happens in place...
+        refresh_latest(stocks)
+
+    if refresh_data:
+        refresh_historic(stocks)
 
     return stocks
 
+
+# can be implemented as part of a new object, containing all the stocks...
 
 def refresh_latest(stocks={}):
     latest = datareader.latest(stocks.keys())
     for symbol, obj in stocks.items():
         obj._apply_latest_data(latest[symbol])
     return stocks
+
+def refresh_historic(stocks={}):
+    for obj in stocks.values():
+        obj.refresh_historic()
+    return stocks
+
 
     
 class Stock:
@@ -76,7 +87,7 @@ class Stock:
         inc_lst = []
         for yr in set(close_xyrs.index.year):
             yr_close = df.Close[ df.index.year == yr ]
-            increase = (yr_close[-1] - yr_close[0]) / yr_close[0]
+            increase = ( max(yr_close) - min(yr_close) ) / min(yr_close)
             inc_lst.append(increase)
         return statistics.median(inc_lst)
     
