@@ -34,7 +34,6 @@ def refresh_historic(stocks={}):
     return stocks
 
 
-    
 class Stock:
 
     def __init__(self, symbol, **kwargs):
@@ -44,8 +43,13 @@ class Stock:
     
     def _fetch_historic_data(self, force_download=False):
         """Retrieves historic data and returns dataframe"""
-        df = datareader.history(self.symbol, 
-                                force_download=force_download) 
+        try:
+            df = datareader.history(self.symbol, 
+                                    force_download=force_download) 
+        except FileNotFoundError:
+            df = datareader.history(self.symbol, 
+                                    force_download=True) 
+
         return df
 
     def refresh_historic(self):
