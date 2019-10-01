@@ -45,3 +45,8 @@
 44,Stock,MSCI Emerging Markets,iShares (Blackrock),EMIM,2000 companies across global amerging markets,0.18%,0.01%,EMIM.L,
 45,Bond,J.P. Morgan Emerging Markets $ Govt Bnd,iShares (Blackrock),SEMB,Income securities issued by emerging market governments,0.45%,0.03%,SEMB.L,
 46,Bond,J.P. Morgan Emerging Markets Govt Bnd,iShares (Blackrock),SEML,Income securities issued by emerging market governments,0.50%,0.11%,SEML.L,
+47,Stock,Developed Market Property,iShares (Blackrock),IWDP,Property investment companies and REITS from developed countries,0.59%,0.03%,IWDP.L,
+48,Stock,Gold industry,iShares (Blackrock),SPGP,"Tracks global companies involved in the gold indutry, mainly miners",0.55%,0.05%,SPGP.L,
+49,Stock,S&P 500,iShares (Blackrock),CSP1,500 large US companies,0.07%,0.06%,CSP1.L,
+50,Stock,S&P 500 Health Care Sector,iShares (Blackrock),IHCU,US healthcare firms,0.15%,0.00%,IHCU.L,
+51,Stock,Tesla,N/A,TSLA,Tesla stock,0.00%,0.00%,TSLA,
