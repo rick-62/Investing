@@ -98,6 +98,9 @@ def latest(symbols=[], source='worldtradingdata'):
         chunk = ','.join(symbols[i:i+n])
         url = stock_url.format(chunk, token(source))
         r = requests.get(url)
-        stocks.update({e['symbol']: e for e in r.json()['data']})
+        try:
+            stocks.update({e['symbol']: e for e in r.json()['data']})
+        except KeyError:
+            raise Exception(f"{url} returns the following, {r.json()}")
 
     return stocks
