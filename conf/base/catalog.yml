@@ -2,3 +2,32 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://kedro.readthedocs.io/en/stable/04_user_guide/04_data_catalog.html
+
+
+######################################
+##### Data Extraction
+######################################
+
+investpy_stocks:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/investpy_stocks.csv
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"
+
+investpy_etfs:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/investpy_etfs.csv
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"
+
+investpy_indices:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/investpy_indices.csv
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"

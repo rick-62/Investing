@@ -35,6 +35,9 @@ from kedro.io import DataCatalog
 from kedro.pipeline import Pipeline
 from kedro.versioning import Journal
 
+from investing.pipelines.data_extraction import pipeline as data_extraction
+from investing.pipelines.transformation import pipeline as transformation
+
 
 class ProjectHooks:
     @hook_impl
@@ -45,8 +48,11 @@ class ProjectHooks:
             A mapping from a pipeline name to a ``Pipeline`` object.
 
         """
+        data_extraction_pipeline = data_extraction.create_pipeline()
 
-        return {"__default__": Pipeline([])}
+        return {
+            "data_extraction": data_extraction_pipeline,
+            "__default__": data_extraction_pipeline}
 
     @hook_impl
     def register_config_loader(self, conf_paths: Iterable[str]) -> ConfigLoader:
