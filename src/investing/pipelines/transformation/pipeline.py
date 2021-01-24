@@ -1,15 +1,22 @@
 from kedro.pipeline import node, Pipeline
 
-# from .nodes import
+from .nodes import (
+    cleanse_freetrade,
+    join_freetrade_etfs,
+)
 
 def create_pipeline(**kwargs):
     return Pipeline(
         [
             node(
-                func=lambda x: x,
-                inputs=None,
-                outputs=None,
-                name='placeholder'
+                func=cleanse_freetrade,
+                inputs=['freetrade', 'params:mic_remap'],
+                outputs='freetrade_cleansed'
+            ),
+            node(
+                func=join_freetrade_etfs,
+                inputs=['freetrade_cleansed', 'investpy_etfs'],
+                outputs='etfs'
             ),
         ]
     )

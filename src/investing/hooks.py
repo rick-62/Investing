@@ -49,10 +49,12 @@ class ProjectHooks:
 
         """
         data_extraction_pipeline = data_extraction.create_pipeline()
+        transformation_pipeline = transformation.create_pipeline()
 
         return {
             "data_extraction": data_extraction_pipeline,
-            "__default__": data_extraction_pipeline}
+            "transformation": transformation_pipeline,
+            "__default__": data_extraction_pipeline + transformation_pipeline}
 
     @hook_impl
     def register_config_loader(self, conf_paths: Iterable[str]) -> ConfigLoader:

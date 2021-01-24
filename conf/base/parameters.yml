@@ -1,0 +1,6 @@
+mic_remap:
+  'XLON': 'London'
+  'XNYS': 'NYSE'
+  'XNAS': 'NASDAQ'
+
+from_date: '01/01/1990'

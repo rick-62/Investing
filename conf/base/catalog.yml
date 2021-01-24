@@ -31,3 +31,24 @@ investpy_indices:
     open_args_save:
       mode: "wb"
       encoding: "utf-8"
+
+freetrade:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/freetrade_stocks.csv
+
+etfs:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/etfs.csv
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"
+
+etfs_historical:
+  type: PartitionedDataSet
+  path: data/01_raw/historic
+  filename_suffix: ".csv"
+  dataset: 
+    type: pandas.CSVDataSet
+    save_args:
+      index: True
