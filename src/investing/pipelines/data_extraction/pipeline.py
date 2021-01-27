@@ -3,6 +3,8 @@ from kedro.pipeline import node, Pipeline
 from .nodes import (
     get_stock_lists,
     download_etfs_historical,
+    cleanse_freetrade,
+    join_freetrade_etfs,
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -15,11 +17,21 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name='investpy_stock_lists'
             ),
             node(
+                func=cleanse_freetrade,
+                inputs=['freetrade', 'params:mic_remap'],
+                outputs='freetrade_cleansed'
+            ),
+            node(
+                func=join_freetrade_etfs,
+                inputs=['freetrade_cleansed', 'investpy_etfs'],
+                outputs='etfs'
+            ),
+            node(
                 func=download_etfs_historical,
                 inputs=['etfs', 'params:from_date'],
                 outputs='etfs_historical',
                 name='download_etfs_historical'
-            )
+            ),
 
         ]
     )
