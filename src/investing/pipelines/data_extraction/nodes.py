@@ -3,7 +3,7 @@ import logging
 from functools import partial
 from time import sleep
 from typing import Dict
-import urllib3
+import warnings
 
 import investpy
 import pandas as pd
@@ -45,6 +45,8 @@ def download_etfs_historical(etfs: pd.DataFrame, from_date: str) -> Dict:
 
     parts = {}
     
+    warnings.filterwarnings('ignore')
+
     for i, row in etfs.iterrows():
 
         file_name = f"etf_{row.symbol_ft}_{row['isin']}"
@@ -62,9 +64,10 @@ def download_etfs_historical(etfs: pd.DataFrame, from_date: str) -> Dict:
             log.info(f"Download complete (ETF historical): {file_name}")
 
         except:
-            log.warning(f"Download FAILED (ETF historical): {file_name}.")
+            log.warning(f"Download FAILED (ETF historical): {file_name}")
             sleep(30)
 
+    warnings.filterwarnings('default')
 
     log.info(f"{len(parts)} downloaded")
     
