@@ -36,6 +36,7 @@ from kedro.pipeline import Pipeline
 from kedro.versioning import Journal
 
 from investing.pipelines.data_extraction import pipeline as data_extraction
+from investing.pipelines.prophet_model import pipeline as prophet_model
 
 
 class ProjectHooks:
@@ -48,10 +49,12 @@ class ProjectHooks:
 
         """
         data_extraction_pipeline = data_extraction.create_pipeline()
+        prophet_model_pipeline = prophet_model.create_pipeline()
 
         return {
             "data_extraction": data_extraction_pipeline,
-            "__default__": data_extraction_pipeline
+            "prophet_model": prophet_model_pipeline,
+            "__default__": data_extraction_pipeline + prophet_model_pipeline
             }
 
     @hook_impl

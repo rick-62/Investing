@@ -52,3 +52,18 @@ etfs_historical:
     type: pandas.CSVDataSet
     save_args:
       index: True
+
+
+######################################
+##### Prophet model
+######################################
+
+etf_forecasts:
+  type: PartitionedDataSet
+  path: data/07_model_output/prophet
+  filename_suffix: ".csv"
+  dataset:
+    type: pandas.CSVDataSet
+    save_args:
+      index: True
+

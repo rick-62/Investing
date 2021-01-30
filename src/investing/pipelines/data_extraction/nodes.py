@@ -1,6 +1,5 @@
 
 import logging
-from functools import partial
 from time import sleep
 from typing import Dict
 import warnings
