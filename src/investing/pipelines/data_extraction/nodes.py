@@ -60,7 +60,7 @@ def download_etfs_historical(etfs: pd.DataFrame, from_date: str) -> Dict:
                 as_json=False, order='ascending'
             )
 
-            log.info(f"Download complete (ETF historical): {file_name}")
+            log.debug(f"Download complete (ETF historical): {file_name}")
 
         except:
             log.warning(f"Download FAILED (ETF historical): {file_name}")

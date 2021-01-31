@@ -27,6 +27,7 @@
 # limitations under the License.
 
 """Project hooks."""
+import warnings
 from typing import Any, Dict, Iterable, Optional
 
 from kedro.config import ConfigLoader
@@ -38,6 +39,7 @@ from kedro.versioning import Journal
 from investing.pipelines.data_extraction import pipeline as data_extraction
 from investing.pipelines.prophet_model import pipeline as prophet_model
 
+warnings.filterwarnings("ignore", category=DeprecationWarning)      # ignore depracation warnings
 
 class ProjectHooks:
     @hook_impl
