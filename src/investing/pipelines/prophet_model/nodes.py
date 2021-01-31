@@ -2,14 +2,14 @@ import logging
 import os
 import warnings
 from multiprocessing import Pool
-from typing import Any, Dict
+from typing import Any, Dict, ItemsView
 
 import pandas as pd
 from fbprophet import Prophet
 
 log = logging.getLogger(__name__)
 
-#logging.getLogger('fbprophet').setLevel(logging.ERROR)  # ignore model convergance log message
+logging.getLogger('fbprophet').setLevel(logging.ERROR)  # ignore model convergance log message; only raise ERRORs
 warnings.simplefilter("ignore", DeprecationWarning)     # ignore depracation warnings
 
 
@@ -29,21 +29,28 @@ def _fit_prophet_model(data: pd.DataFrame) -> pd.DataFrame:
     forecast.set_index('ds', inplace=True)
     return forecast
 
+def _transform_fit(item):
+
+        name, data = item
+        # try:
+        _data = _transform_model_input(data())
+        return (name, _fit_prophet_model(_data))
+        # except:
+        #     log.error(f"{name} failed Prophet processing")
+
 def apply_prophet_model(datasets: Dict[str, Any]) -> Dict[str, pd.DataFrame]:
     '''Loop through historic data and apply prophet model'''
 
-    forecasts = {}
-    
-    for name, data in datasets.items():
-        try:
-            _data = _transform_model_input(data())
-            forecasts[name] = _fit_prophet_model(_data)
-        except:
-            log.error(f"{name} failed Prophet processing")
+    try:
+        pool = Pool(os.cpu_count() - 1)
+        forecasts = pool.map(_transform_fit, datasets.items())
+        log.info(f"{len(forecasts)} processed with Prophet")
 
-    log.info(f"{len(forecasts)} processed with Prophet")
+    finally:
+        pool.close()
+        pool.join()
 
-    return forecasts
+    return dict(forecasts)
 
 
 
