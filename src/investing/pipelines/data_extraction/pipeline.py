@@ -5,6 +5,8 @@ from .nodes import (
     download_etfs_historical,
     cleanse_freetrade,
     join_freetrade_etfs,
+    download_etf_information,
+    combine_etf_information,
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -23,15 +25,27 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=join_freetrade_etfs,
-                inputs=['freetrade_cleansed', 'investpy_etfs'],
+                inputs=['freetrade_cleansed', 'investpy_etfs'], 
                 outputs='etfs'
             ),
             node(
                 func=download_etfs_historical,
                 inputs=['etfs', 'params:from_date'],
-                outputs='etfs_historical',
+                outputs='etf_historical',
                 name='download_etfs_historical'
             ),
+            node(
+                func=download_etf_information,
+                inputs='etfs',
+                outputs='etf_information_raw',
+                name='download_etfs_informaton'
+            ),
+            node(
+                func=combine_etf_information,
+                inputs='etf_information_raw',
+                outputs='etf_information',
+                name='combine_etfs_information'
+            )
 
         ]
     )

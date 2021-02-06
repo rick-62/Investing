@@ -4,3 +4,7 @@ mic_remap:
   'XNAS': 'NASDAQ'
 
 from_date: '01/01/1990'
+
+etf: 'etf'
+stock: 'stock'
+index: 'index'

@@ -38,6 +38,7 @@ from kedro.versioning import Journal
 
 from investing.pipelines.data_extraction import pipeline as data_extraction
 from investing.pipelines.prophet_model import pipeline as prophet_model
+from investing.pipelines.reporting import pipeline as reporting
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)      # ignore depracation warnings
 
@@ -52,11 +53,13 @@ class ProjectHooks:
         """
         data_extraction_pipeline = data_extraction.create_pipeline()
         prophet_model_pipeline = prophet_model.create_pipeline()
+        reporting_pipeline = reporting.create_pipeline()
 
         return {
             "data_extraction": data_extraction_pipeline,
             "prophet_model": prophet_model_pipeline,
-            "__default__": data_extraction_pipeline + prophet_model_pipeline
+            "reporting": reporting_pipeline,
+            "__default__": data_extraction_pipeline + prophet_model_pipeline + reporting_pipeline
             }
 
     @hook_impl

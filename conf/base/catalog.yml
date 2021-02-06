@@ -44,7 +44,7 @@ etfs:
       mode: "wb"
       encoding: "utf-8"
 
-etfs_historical:
+etf_historical:
   type: PartitionedDataSet
   path: data/01_raw/historic
   filename_suffix: ".csv"
@@ -52,6 +52,18 @@ etfs_historical:
     type: pandas.CSVDataSet
     save_args:
       index: True
+
+etf_information_raw:
+  type: PartitionedDataSet
+  path: data/01_raw/information
+  filename_suffix: ".json"
+  dataset:
+    type: json.JSONDataSet
+
+etf_information:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/etf_information.csv
+
 
 
 ######################################
@@ -67,3 +79,28 @@ etf_forecasts:
     save_args:
       index: True
 
+etf_forecast_master:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/etf_forecast.csv
+
+
+
+######################################
+##### Reporting
+######################################
+
+etf_summary:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/etf_daily_summary.csv
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"
+
+etf_sell:
+  type: pandas.CSVDataSet
+  filepath: data/08_reporting/etf_sell.csv
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"

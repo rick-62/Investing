@@ -74,5 +74,49 @@ def download_etfs_historical(etfs: pd.DataFrame, from_date: str) -> Dict:
 
 
 
+def download_etf_information(etfs: pd.DataFrame) -> Dict:
+    '''Get latest etf information: latest price range, market cap etc.'''
+
+    info = {}
+
+    for i, row in etfs.iterrows():
+
+        file_name = f"etf_{row.symbol_ft}_{row['isin']}"
+
+        sleep(1)
+
+        try:
+            info[file_name] = investpy.get_etf_information(row['name'], row.country, as_json=True)
+            log.debug(f"Download complete (ETF information): {file_name}")
+
+        except:
+            log.warning(f"Download FAILED (ETF information): {file_name}")
+            sleep(30)
+
+    warnings.filterwarnings('default')
+
+    log.info(f"{len(info)} downloaded")
+    
+    return info
+
+
+def combine_etf_information(data: Dict) -> pd.DataFrame:
+    '''Combine stock information into one table, from folder of raw JSON files'''
+
+    lst = []
+    for name, info in data.items():
+        json = info()
+        json['name'] = name
+        lst.append(json)
+
+    return pd.DataFrame.from_records(lst)
+
+
+
+
+
+
+
+
 
 
