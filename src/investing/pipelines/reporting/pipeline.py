@@ -1,6 +1,7 @@
 from kedro.pipeline import node, Pipeline
 
 from .nodes import (
+    extract_historical_meta,
     extract_prophet_output,
     combine_etf_outputs,
     clean_etf_summary,
@@ -11,6 +12,12 @@ def create_pipeline(**kwargs) -> Pipeline:
     return Pipeline(
         [
             node(
+                func=extract_historical_meta,
+                inputs='etf_historical',
+                outputs='etf_historical_meta',
+                name='extract_etfs_historical_meta'
+            ),
+            node(
                 func=extract_prophet_output,
                 inputs='etf_forecasts',
                 outputs='etf_forecast_master',
@@ -18,7 +25,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=combine_etf_outputs,
-                inputs=['etf_forecast_master', 'etfs', 'etf_information'],
+                inputs=['etf_forecast_master', 'etfs', 'etf_information', 'etf_historical_meta'],
                 outputs='etf_combined_data',
                 name='etf_combined_data'
             ),

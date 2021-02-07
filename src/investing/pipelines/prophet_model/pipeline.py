@@ -9,7 +9,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=apply_prophet_model,
-                inputs='etfs_historical',
+                inputs='etf_historical',
                 outputs='etf_forecasts',
                 name='prophet_etfs'
             ),
