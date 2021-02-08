@@ -104,3 +104,11 @@ etf_sell:
     open_args_save:
       mode: "wb"
       encoding: "utf-8"
+
+etf_buy:
+  type: pandas.CSVDataSet
+  filepath: data/08_reporting/etf_buy.csv
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"

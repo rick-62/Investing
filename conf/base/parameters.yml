@@ -8,3 +8,8 @@ from_date: '01/01/1990'
 etf: 'etf'
 stock: 'stock'
 index: 'index'
+
+buy_params:
+  min_age: 8
+  volatility_factor: 0.5
+  

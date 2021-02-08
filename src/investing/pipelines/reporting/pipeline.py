@@ -5,7 +5,9 @@ from .nodes import (
     extract_prophet_output,
     combine_etf_outputs,
     clean_etf_summary,
+    enrich_etf_summary,
     sell_etf,
+    buy_etf,
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -32,6 +34,12 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=clean_etf_summary,
                 inputs='etf_combined_data',
+                outputs='etf_summary_cleaned',
+                name='etf_summary_cleaned'
+            ),
+            node(
+                func=enrich_etf_summary,
+                inputs=['etf_summary_cleaned', 'params:buy_params'],
                 outputs='etf_summary',
                 name='etf_summary'
             ),
@@ -40,6 +48,12 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs='etf_summary',
                 outputs='etf_sell',
                 name='etf_sell'
+            ),
+            node(
+                func=buy_etf,
+                inputs=['etf_summary', 'params:buy_params'],
+                outputs='etf_buy',
+                name='etf_buy'
             ),
         ]
     )
