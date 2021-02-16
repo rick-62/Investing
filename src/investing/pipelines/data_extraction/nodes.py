@@ -112,6 +112,44 @@ def combine_etf_information(data: Dict) -> pd.DataFrame:
     return pd.DataFrame.from_records(lst)
 
 
+def cleanse_investments(investments: pd.DataFrame, portfolio_remap: Dict) -> pd.DataFrame:
+
+    # remove .L from symbols
+    investments['symbol_ft'] = investments.Symbol.str.replace(r'.L$', '')
+
+    # remap exchange column, to match column used in ETFs
+    investments['stock_exchange'] = investments.Exchange.replace(portfolio_remap)
+
+    # remove blank rows (Type is 'Buy', 'Sell' or 'Dividend')
+    investments[~investments.Type.isna()]
+
+    return investments
+
+
+def extract_current_holdings(investments: pd.DataFrame) -> pd.DataFrame:
+
+    # consider only Type buy or sell with intention of extracting only current holdings
+    holdings = investments[investments.Type.isin(['Buy', 'Sell'])]
+
+    # convert Quantity to negative when stocks are sold
+    holdings['type_num'] = holdings.Type.replace({'Buy': 1, 'Sell': -1})
+    holdings.eval('Quantity = type_num * Quantity', inplace=True) 
+
+    # sum total stocks sold and bought to identify current holdings
+    holdings = holdings.groupby(['symbol_ft', 'stock_exchange'])['Quantity'].sum()
+
+    # filter only current holdings
+    holdings = (
+        holdings[holdings > 0]
+        .reset_index()
+        .rename({'Quantity': 'shares_held'}, axis=1)
+    )
+
+    return holdings
+
+    
+
+
 
 
 

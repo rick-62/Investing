@@ -58,14 +58,16 @@ def combine_etf_outputs(
     forecast: pd.DataFrame, 
     etfs: pd.DataFrame, 
     etf_information: pd.DataFrame, 
-    etf_historical_meta: pd.DataFrame
+    etf_historical_meta: pd.DataFrame,
+    current_holdings: pd.DataFrame,
     ) -> pd.DataFrame:
     '''Combine etfs, forecasts and information to create a master table'''
 
     merge1 = pd.merge(etfs, etf_information, left_on='name', right_on='ETF Name', how='left', suffixes=('_source', ''))
     merge2 = pd.merge(merge1, forecast, on='name', how='left', suffixes=('', '_forecast'))
     merge3 = pd.merge(merge2, etf_historical_meta, on='name', how='left')
-    return merge3
+    merge4 = pd.merge(merge3, current_holdings, on=['symbol_ft', 'stock_exchange'], how='left')
+    return merge4
 
 
 def clean_etf_summary(etf_combined_data: pd.DataFrame) -> pd.DataFrame:
@@ -80,7 +82,7 @@ def clean_etf_summary(etf_combined_data: pd.DataFrame) -> pd.DataFrame:
             'currency',
             'isa_eligible',
             'isin',
-            'mic',
+            'stock_exchange',
             'symbol_ft',
             'fractional_enabled',
             'plus_only',
@@ -94,9 +96,13 @@ def clean_etf_summary(etf_combined_data: pd.DataFrame) -> pd.DataFrame:
             'name',
             'volatility',
             'age',
+            'shares_held',
         ], 
         axis=1,
     )
+
+    # replace missing shares held with 0
+    summary.shares_held.fillna(0, inplace=True)
 
     # Rename columns
     summary.rename(
@@ -139,11 +145,11 @@ def enrich_etf_summary(clean_etf_summary: pd.DataFrame, buy_params: Dict) -> pd.
 
 
 
-def sell_etf(summary: pd.DataFrame) -> pd.DataFrame:
+def sell_etf(summary: pd.DataFrame, current_holdings: pd.DataFrame) -> pd.DataFrame:
     '''filters and ranks ETFs to sell'''
 
-    # select those to sell only where potential price greater than upper forecast
-    sell = summary[summary.sell_flag].copy()
+    # merge current holdings back on to summary to keep sight of missing stocks
+    sell = pd.merge(summary, current_holdings, on=['symbol_ft', 'stock_exchange'], how='right')
 
     # rank output by percentage over yhat upper
     sell.sort_values(by=['pct_over_yhat_upper'], ascending=False, inplace=True)
@@ -167,18 +173,6 @@ def buy_etf(summary: pd.DataFrame, buy_params: Dict) -> pd.DataFrame:
 
 
 
-    
-
-
-
-
-
-
-
-# create age and buy-sell-hold flags, change from trend, typical annual ROI and how oversold/undersold
-# create two outputs: buy and sell ranked datasets based on viable options
-# Rank based on:
-    # buy = age > 5yrs, ROI, change from trend or how undersold
 
 
     

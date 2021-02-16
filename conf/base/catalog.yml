@@ -8,6 +8,14 @@
 ##### Data Extraction
 ######################################
 
+investments_raw:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/investments.csv
+
+current_holdings:
+  type: pandas.CSVDataSet
+  filepath: data/03_primary/current_holdings.csv
+
 investpy_stocks:
   type: pandas.CSVDataSet
   filepath: data/01_raw/investpy_stocks.csv

@@ -27,7 +27,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=combine_etf_outputs,
-                inputs=['etf_forecast_master', 'etfs', 'etf_information', 'etf_historical_meta'],
+                inputs=['etf_forecast_master', 'etfs', 'etf_information', 'etf_historical_meta', 'current_holdings'],
                 outputs='etf_combined_data',
                 name='etf_combined_data'
             ),
@@ -45,7 +45,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=sell_etf,
-                inputs='etf_summary',
+                inputs=['etf_summary', 'current_holdings'],
                 outputs='etf_sell',
                 name='etf_sell'
             ),

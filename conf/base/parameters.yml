@@ -3,6 +3,11 @@ mic_remap:
   'XNYS': 'NYSE'
   'XNAS': 'NASDAQ'
 
+portfolio_remap:
+  'LSE': 'London'
+  'NMS': 'NASDAQ'
+  'NYQ': 'NYSE'
+
 from_date: '01/01/1990'
 
 etf: 'etf'

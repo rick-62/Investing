@@ -4,9 +4,11 @@ from .nodes import (
     get_stock_lists,
     download_etfs_historical,
     cleanse_freetrade,
+    cleanse_investments,
     join_freetrade_etfs,
     download_etf_information,
     combine_etf_information,
+    extract_current_holdings,
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -19,9 +21,27 @@ def create_pipeline(**kwargs) -> Pipeline:
                 name='investpy_stock_lists'
             ),
             node(
+                func=cleanse_investments,
+                inputs=['investments_raw', 'params:portfolio_remap'],
+                outputs='investments',
+                name='investments_cleansed'
+            ),
+            node(
                 func=cleanse_freetrade,
                 inputs=['freetrade', 'params:mic_remap'],
                 outputs='freetrade_cleansed'
+            ),
+            node(
+                func=extract_current_holdings,
+                inputs='investments',
+                outputs='current_holdings',
+                name='current_holdings'
+            ),
+            node(
+                func=combine_etf_information,
+                inputs='etf_information_raw',
+                outputs='etf_information',
+                name='combine_etfs_information'
             ),
             node(
                 func=join_freetrade_etfs,
@@ -40,12 +60,6 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs='etf_information_raw',
                 name='download_etfs_informaton'
             ),
-            node(
-                func=combine_etf_information,
-                inputs='etf_information_raw',
-                outputs='etf_information',
-                name='combine_etfs_information'
-            )
 
         ]
     )
