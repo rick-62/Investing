@@ -31,6 +31,7 @@ import warnings
 from typing import Any, Dict, Iterable, Optional
 
 from kedro.config import ConfigLoader
+from kedro.config import TemplatedConfigLoader 
 from kedro.framework.hooks import hook_impl
 from kedro.io import DataCatalog
 from kedro.pipeline import Pipeline
@@ -64,7 +65,12 @@ class ProjectHooks:
 
     @hook_impl
     def register_config_loader(self, conf_paths: Iterable[str]) -> ConfigLoader:
-        return ConfigLoader(conf_paths)
+        return TemplatedConfigLoader(
+            conf_paths,
+            globals_pattern="*globals.yml",  # read the globals dictionary from project config
+            globals_dict={  # extra keys to add to the globals dictionary, take precedence over globals_pattern
+            },
+        )
 
     @hook_impl
     def register_catalog(

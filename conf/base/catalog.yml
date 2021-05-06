@@ -4,57 +4,49 @@
 # Link: https://kedro.readthedocs.io/en/stable/04_user_guide/04_data_catalog.html
 
 
+_csv: &csv
+  type: pandas.CSVDataSet
+  fs_args:
+    open_args_save:
+      mode: "wb"
+      encoding: "utf-8"
+
+
 ######################################
 ##### Data Extraction
 ######################################
 
 investments_raw:
   type: pandas.CSVDataSet
-  filepath: data/01_raw/investments.csv
+  filepath: ${data_parent}\01_raw\manual\investments.csv
 
 current_holdings:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/current_holdings.csv
+  filepath: ${data_parent}\03_primary\current_holdings.csv
 
 investpy_stocks:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/investpy_stocks.csv
-  fs_args:
-    open_args_save:
-      mode: "wb"
-      encoding: "utf-8"
+  filepath: ${data_parent}\01_raw\investpy\stocks.csv
+  <<: *csv
 
 investpy_etfs:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/investpy_etfs.csv
-  fs_args:
-    open_args_save:
-      mode: "wb"
-      encoding: "utf-8"
+  filepath: ${data_parent}\01_raw\investpy\etfs.csv
+  <<: *csv
 
 investpy_indices:
-  type: pandas.CSVDataSet
-  filepath: data/01_raw/investpy_indices.csv
-  fs_args:
-    open_args_save:
-      mode: "wb"
-      encoding: "utf-8"
+  filepath: ${data_parent}\01_raw\investpy\indices.csv
+  <<: *csv
 
 freetrade:
   type: pandas.CSVDataSet
-  filepath: data/01_raw/freetrade_stocks.csv
+  filepath: ${data_parent}\01_raw\manual\freetrade_stocks.csv
 
 etfs:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/etfs.csv
-  fs_args:
-    open_args_save:
-      mode: "wb"
-      encoding: "utf-8"
+  filepath: ${data_parent}\03_primary\etfs.csv
+  <<: *csv
 
 etf_historical:
   type: PartitionedDataSet
-  path: data/01_raw/historic
+  path: ${data_parent}\01_raw\investpy\historic
   filename_suffix: ".csv"
   dataset: 
     type: pandas.CSVDataSet
@@ -63,14 +55,14 @@ etf_historical:
 
 etf_information_raw:
   type: PartitionedDataSet
-  path: data/01_raw/information
+  path: ${data_parent}\01_raw\investpy\information
   filename_suffix: ".json"
   dataset:
     type: json.JSONDataSet
 
 etf_information:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/etf_information.csv
+  filepath: ${data_parent}\03_primary\etf_information.csv
 
 
 
@@ -80,7 +72,7 @@ etf_information:
 
 etf_forecasts:
   type: PartitionedDataSet
-  path: data/07_model_output/prophet
+  path: ${data_parent}\07_model_output\prophet
   filename_suffix: ".csv"
   dataset:
     type: pandas.CSVDataSet
@@ -89,7 +81,7 @@ etf_forecasts:
 
 etf_forecast_master:
   type: pandas.CSVDataSet
-  filepath: data/03_primary/etf_forecast.csv
+  filepath: ${data_parent}\03_primary\etf_forecast.csv
 
 
 
@@ -98,25 +90,13 @@ etf_forecast_master:
 ######################################
 
 etf_summary:
-  type: pandas.CSVDataSet
-  filepath: data/03_primary/etf_daily_summary.csv
-  fs_args:
-    open_args_save:
-      mode: "wb"
-      encoding: "utf-8"
+  filepath: ${data_parent}\03_primary\etf_daily_summary.csv
+  <<: *csv
 
 etf_sell:
-  type: pandas.CSVDataSet
-  filepath: data/08_reporting/etf_sell.csv
-  fs_args:
-    open_args_save:
-      mode: "wb"
-      encoding: "utf-8"
+  filepath: ${data_parent}\08_reporting\etf_sell.csv
+  <<: *csv
 
 etf_buy:
-  type: pandas.CSVDataSet
-  filepath: data/08_reporting/etf_buy.csv
-  fs_args:
-    open_args_save:
-      mode: "wb"
-      encoding: "utf-8"
+  filepath: ${data_parent}\08_reporting\etf_buy.csv
+  <<: *csv
