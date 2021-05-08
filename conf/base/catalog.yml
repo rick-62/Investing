@@ -40,6 +40,9 @@ freetrade:
   type: pandas.CSVDataSet
   filepath: ${data_parent}\01_raw\manual\freetrade_stocks.csv
 
+freetrade_cleansed:
+  type: MemoryDataSet
+
 etfs:
   filepath: ${data_parent}\03_primary\etfs.csv
   <<: *csv
@@ -63,6 +66,19 @@ etf_information_raw:
 etf_information:
   type: pandas.CSVDataSet
   filepath: ${data_parent}\03_primary\etf_information.csv
+
+alphavantage_etf_historical:
+  type: PartitionedDataSet
+  path: ${data_parent}\01_raw\alpha_vantage\historic
+  filename_suffix: ".csv"
+  dataset: 
+    type: pandas.CSVDataSet
+    save_args:
+      index: True
+
+
+
+
 
 
 

@@ -1,11 +1,13 @@
 
 import logging
-from time import sleep
-from typing import Dict
+import time
+from typing import Dict, Iterable
 import warnings
 
 import investpy
 import pandas as pd
+
+from alpha_vantage.timeseries import TimeSeries
 
 log = logging.getLogger(__name__)
 
@@ -20,12 +22,14 @@ def get_stock_lists():
     return stocks, etfs, indices
 
 
-def cleanse_freetrade(ft: pd.DataFrame, mic_remap: Dict) -> pd.DataFrame:
-    '''Clean freetrade data and prepare for join to investpy stock list'''
+def cleanse_freetrade(ft: pd.DataFrame, mic_remap: Dict, symbol_suffix: Dict) -> pd.DataFrame:
+    '''Clean and prepare freetrade data'''
 
     ft.columns = ft.columns.str.lower()
     ft.fractional_enabled.fillna(False, inplace=True)
-    ft['stock_exchange'] = [mic_remap.get(x) for x in ft.mic]  # convert mic to exchange e.g. XLON: London
+    ft.symbol = ft.symbol.str.replace(".", "")
+    ft['stock_exchange'] = [mic_remap.get(x) for x in ft.mic]  # convert mic to exchange e.g. XLON: London (INVESTPY)
+    ft['symbol_alphavantage'] = ft.symbol.str.cat([symbol_suffix.get(x, "") for x in ft.mic])
     ft.currency = ft.currency.str.upper()
 
     return ft
@@ -50,7 +54,7 @@ def download_etfs_historical(etfs: pd.DataFrame, from_date: str) -> Dict:
 
         file_name = f"etf_{row.symbol_ft}_{row['isin']}"
 
-        sleep(1)
+        time.sleep(1)
 
         try:
             parts[file_name] = investpy.get_etf_historical_data(
@@ -64,7 +68,7 @@ def download_etfs_historical(etfs: pd.DataFrame, from_date: str) -> Dict:
 
         except:
             log.warning(f"Download FAILED (ETF historical): {file_name}")
-            sleep(30)
+            time.sleep(30)
 
     warnings.filterwarnings('default')
 
@@ -83,7 +87,7 @@ def download_etf_information(etfs: pd.DataFrame) -> Dict:
 
         file_name = f"etf_{row.symbol_ft}_{row['isin']}"
 
-        sleep(1)
+        time.sleep(1)
 
         try:
             info[file_name] = investpy.get_etf_information(row['name'], row.country, as_json=True)
@@ -91,7 +95,7 @@ def download_etf_information(etfs: pd.DataFrame) -> Dict:
 
         except:
             log.warning(f"Download FAILED (ETF information): {file_name}")
-            sleep(30)
+            time.sleep(30)
 
     warnings.filterwarnings('default')
 
@@ -146,6 +150,33 @@ def extract_current_holdings(investments: pd.DataFrame) -> pd.DataFrame:
     )
 
     return holdings
+
+
+def download_historic_alpha_vantage(etfs: pd.DataFrame, params: Dict, access_key: str):
+    '''download historic data from Alpha Vantage, including dividends and splits'''
+
+    ts = TimeSeries(access_key)
+
+    data = {}
+    for symbol in etfs.symbol_alphavantage[:5]:
+        time.sleep(params['sleep'])
+        try:
+            historic, meta = ts.get_daily_adjusted(symbol, outputsize='full')
+            data[symbol] = pd.DataFrame.from_dict(historic, orient='index', dtype='float')
+
+            log.debug(f"Download complete (Alpha Vantage historical): {symbol}")
+
+        except:
+            log.warning(f"Download FAILED (Alpha Vantage historical): {symbol}")
+
+    log.info(f"{len(data)} downloaded")
+        
+    return data
+
+
+ 
+
+
 
     
 

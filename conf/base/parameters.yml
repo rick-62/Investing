@@ -3,6 +3,9 @@ mic_remap:
   'XNYS': 'NYSE'
   'XNAS': 'NASDAQ'
 
+symbol_suffix:
+  'XLON': '.LON'
+
 portfolio_remap:
   'LSE': 'London'
   'NMS': 'NASDAQ'
@@ -17,4 +20,7 @@ index: 'index'
 buy_params:
   min_age: 8
   volatility_factor: 0.5
+
+alpha_vantage:
+  sleep: 12
   

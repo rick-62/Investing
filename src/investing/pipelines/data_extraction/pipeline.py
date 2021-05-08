@@ -9,6 +9,7 @@ from .nodes import (
     download_etf_information,
     combine_etf_information,
     extract_current_holdings,
+    download_historic_alpha_vantage,
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -28,8 +29,9 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=cleanse_freetrade,
-                inputs=['freetrade', 'params:mic_remap'],
-                outputs='freetrade_cleansed'
+                inputs=['freetrade', 'params:mic_remap', 'params:symbol_suffix'],
+                outputs='freetrade_cleansed',
+                name='cleanse_freetrade'
             ),
             node(
                 func=extract_current_holdings,
@@ -46,7 +48,14 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=join_freetrade_etfs,
                 inputs=['freetrade_cleansed', 'investpy_etfs'], 
-                outputs='etfs'
+                outputs='etfs',
+                name='join_freetrade_etfs'
+            ),
+            node(
+                func=download_historic_alpha_vantage,
+                inputs=['etfs', 'params:alpha_vantage', 'params:alpha_vantage_access_key'],
+                outputs='alphavantage_etf_historical',
+                name='download_historic_alpha_vantage'
             ),
             node(
                 func=download_etfs_historical,
