@@ -10,6 +10,7 @@ from .nodes import (
     combine_etf_information,
     extract_current_holdings,
     download_historic_alpha_vantage,
+    prepare_historic_alpha_vantage
 )
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -54,8 +55,14 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=download_historic_alpha_vantage,
                 inputs=['etfs', 'params:alpha_vantage', 'params:alpha_vantage_access_key'],
-                outputs='alphavantage_etf_historical',
+                outputs='alphavantage_etf_historical_raw',
                 name='download_historic_alpha_vantage'
+            ),
+            node(
+                func=prepare_historic_alpha_vantage,
+                inputs='alphavantage_etf_historical_raw',
+                outputs='alphavantage_etf_historical_cleansed',
+                name='prepare_historic_alpha_vantage'
             ),
             node(
                 func=download_etfs_historical,

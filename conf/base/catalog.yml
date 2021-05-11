@@ -67,7 +67,7 @@ etf_information:
   type: pandas.CSVDataSet
   filepath: ${data_parent}\03_primary\etf_information.csv
 
-alphavantage_etf_historical:
+alphavantage_etf_historical_raw:
   type: PartitionedDataSet
   path: ${data_parent}\01_raw\alpha_vantage\historic
   filename_suffix: ".csv"
@@ -76,8 +76,12 @@ alphavantage_etf_historical:
     save_args:
       index: True
 
-
-
+alphavantage_etf_historical_cleansed:
+  type: PartitionedDataSet
+  path: ${data_parent}\02_intermediate\alpha_vantage\historic
+  filename_suffix: ".csv"
+  dataset: 
+    type: pandas.CSVDataSet
 
 
 

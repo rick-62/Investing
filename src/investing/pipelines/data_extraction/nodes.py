@@ -1,7 +1,7 @@
 
 import logging
 import time
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Any
 import warnings
 
 import investpy
@@ -152,13 +152,13 @@ def extract_current_holdings(investments: pd.DataFrame) -> pd.DataFrame:
     return holdings
 
 
-def download_historic_alpha_vantage(etfs: pd.DataFrame, params: Dict, access_key: str):
+def download_historic_alpha_vantage(stocks: pd.DataFrame, params: Dict[str, Any], access_key: str) -> Dict[str, pd.DataFrame]:
     '''download historic data from Alpha Vantage, including dividends and splits'''
 
     ts = TimeSeries(access_key)
 
     data = {}
-    for symbol in etfs.symbol_alphavantage[:5]:
+    for symbol in stocks.symbol_alphavantage[:5]:
         time.sleep(params['sleep'])
         try:
             historic, meta = ts.get_daily_adjusted(symbol, outputsize='full')
@@ -172,6 +172,35 @@ def download_historic_alpha_vantage(etfs: pd.DataFrame, params: Dict, access_key
     log.info(f"{len(data)} downloaded")
         
     return data
+
+
+def prepare_historic_alpha_vantage(stocks: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
+    '''prepare Alpha Vantage historic data'''
+
+    data = {}
+
+    for key, item in stocks.items():
+
+        # rename columns
+        stock = item().rename(
+            {
+                'Unnamed: 0': 'date',
+                '1. open': 'open',
+                '2. high': 'high',
+                '3. low' : 'low',
+                '4. close': 'close',
+                '5. adjusted close': 'adjusted_close',
+                '6. volume': 'volume',
+                '7. dividend amount': 'dividend',
+                '8. split coefficient': 'split_coefficient'
+            },
+            axis='columns'
+        )
+
+        data[key] = stock
+
+    return data
+
 
 
  
