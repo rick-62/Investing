@@ -1,0 +1,38 @@
+# This is a boilerplate parameters config generated for pipeline 'P300_strat001_hma_distributions'
+# using Kedro 0.17.0.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/stable/04_kedro_project_setup/02_configuration.html#parameters
+
+
+hma_period: 500
+trama_period: 500
+rebalance_period: 20  # working days (4 weeks)
+roc_column_name: ROC
+top: 10
+n: 1_000_000
+etfs: # currently over 1.09 (empircal annual return + dividend) & had dividend only
+  - EUXS.LON
+  - FXC.LON
+  - GBDV.LON
+  - IAPD.LON
+  - IASP.LON
+  - IBZL.LON
+  - IEEM.LON
+  - IEUX.LON
+  - IFFF.LON
+  - IH2O.LON
+  - IKOR.LON
+  - INAA.LON
+  - IPRP.LON
+  - ISP6.LON
+  - ISUS.LON
+  - ITWN.LON
+  - IUSP.LON
+  - IWDG.LON
+  - IWRD.LON
+  - VMID.LON
+  - UINC.LON
+  - VUSA.LON
+  - WOOD.LON
+

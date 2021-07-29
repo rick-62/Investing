@@ -158,7 +158,7 @@ def download_historic_alpha_vantage(stocks: pd.DataFrame, params: Dict[str, Any]
     ts = TimeSeries(access_key)
 
     data = {}
-    for symbol in stocks.symbol_alphavantage[:5]:
+    for symbol in stocks.symbol_alphavantage:
         time.sleep(params['sleep'])
         try:
             historic, meta = ts.get_daily_adjusted(symbol, outputsize='full')
@@ -182,19 +182,22 @@ def prepare_historic_alpha_vantage(stocks: Dict[str, pd.DataFrame]) -> Dict[str,
     for key, item in stocks.items():
 
         # rename columns
-        stock = item().rename(
-            {
-                'Unnamed: 0': 'date',
-                '1. open': 'open',
-                '2. high': 'high',
-                '3. low' : 'low',
-                '4. close': 'close',
-                '5. adjusted close': 'adjusted_close',
-                '6. volume': 'volume',
-                '7. dividend amount': 'dividend',
-                '8. split coefficient': 'split_coefficient'
-            },
-            axis='columns'
+        stock = (item()
+            .rename(
+                errors='raise',
+                columns={
+                    'Unnamed: 0': 'date',
+                    '1. open': 'open',
+                    '2. high': 'high',
+                    '3. low' : 'low',
+                    '4. close': 'close',
+                    '5. adjusted close': 'adjusted_close',
+                    '6. volume': 'volume',
+                    '7. dividend amount': 'dividend',
+                    '8. split coefficient': 'split_coefficient'
+                },
+            )
+            .sort_values('date', ascending=True)
         )
 
         data[key] = stock

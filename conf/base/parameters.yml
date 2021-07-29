@@ -1,26 +1,10 @@
-mic_remap:
-  'XLON': 'London'
-  'XNYS': 'NYSE'
-  'XNAS': 'NASDAQ'
-
-symbol_suffix:
-  'XLON': '.LON'
-
-portfolio_remap:
-  'LSE': 'London'
-  'NMS': 'NASDAQ'
-  'NYQ': 'NYSE'
 
 from_date: '01/01/1990'
-
-etf: 'etf'
-stock: 'stock'
-index: 'index'
 
 buy_params:
   min_age: 8
   volatility_factor: 0.5
-
-alpha_vantage:
-  sleep: 12
   
+sleep:
+  normal: 12
+  error: 60

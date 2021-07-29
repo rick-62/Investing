@@ -13,41 +13,55 @@ _csv: &csv
 
 
 ######################################
-##### Data Extraction
+##### P100_ext_freetrade
 ######################################
 
-investments_raw:
-  type: pandas.CSVDataSet
-  filepath: ${data_parent}\01_raw\manual\investments.csv
-
-current_holdings:
-  type: pandas.CSVDataSet
-  filepath: ${data_parent}\03_primary\current_holdings.csv
-
-investpy_stocks:
-  filepath: ${data_parent}\01_raw\investpy\stocks.csv
-  <<: *csv
-
-investpy_etfs:
-  filepath: ${data_parent}\01_raw\investpy\etfs.csv
-  <<: *csv
-
-investpy_indices:
-  filepath: ${data_parent}\01_raw\investpy\indices.csv
-  <<: *csv
-
-freetrade:
+raw_csv_freetrade:
   type: pandas.CSVDataSet
   filepath: ${data_parent}\01_raw\manual\freetrade_stocks.csv
 
-freetrade_cleansed:
+int_csv_freetrade_cleansed:
+  filepath: ${data_parent}\02_intermediate\freetrade_cleansed.csv
+  <<: *csv
+  
+
+######################################
+##### P110_ext_portfolio
+######################################
+
+raw_csv_portfolio:
+  type: pandas.CSVDataSet
+  filepath: ${data_parent}\01_raw\manual\portfolio.csv
+
+inmem_portfolio_cleansed:
   type: MemoryDataSet
 
-etfs:
-  filepath: ${data_parent}\03_primary\etfs.csv
+primary_csv_current_holdings:
+  type: pandas.CSVDataSet
+  filepath: ${data_parent}\03_primary\current_holdings.csv
+
+
+######################################
+##### P120_ext_investpy
+######################################
+
+raw_csv_investpy_stocks:
+  filepath: ${data_parent}\01_raw\investpy\stocks.csv
   <<: *csv
 
-etf_historical:
+raw_csv_investpy_etfs:
+  filepath: ${data_parent}\01_raw\investpy\etfs.csv
+  <<: *csv
+
+raw_csv_investpy_indices:
+  filepath: ${data_parent}\01_raw\investpy\indices.csv
+  <<: *csv
+  
+int_csv_freetrade_investpy_etf_list:
+  filepath: ${data_parent}\02_intermediate\freetrade_investpy_etfs.csv
+  <<: *csv
+  
+raw_parts_investpy_etf_historic:
   type: PartitionedDataSet
   path: ${data_parent}\01_raw\investpy\historic
   filename_suffix: ".csv"
@@ -56,18 +70,18 @@ etf_historical:
     save_args:
       index: True
 
-etf_information_raw:
+raw_parts_investpy_etf_information:
   type: PartitionedDataSet
   path: ${data_parent}\01_raw\investpy\information
   filename_suffix: ".json"
   dataset:
     type: json.JSONDataSet
 
-etf_information:
-  type: pandas.CSVDataSet
-  filepath: ${data_parent}\03_primary\etf_information.csv
+######################################
+##### P130_ext_alpha_vantage
+######################################
 
-alphavantage_etf_historical_raw:
+raw_parts_alphavantage_etf_historic:
   type: PartitionedDataSet
   path: ${data_parent}\01_raw\alpha_vantage\historic
   filename_suffix: ".csv"
@@ -76,12 +90,55 @@ alphavantage_etf_historical_raw:
     save_args:
       index: True
 
-alphavantage_etf_historical_cleansed:
+int_parts_alphavantage_etf_historic_cleansed:
   type: PartitionedDataSet
   path: ${data_parent}\02_intermediate\alpha_vantage\historic
   filename_suffix: ".csv"
   dataset: 
     type: pandas.CSVDataSet
+
+
+######################################
+##### P200_eng_dividends
+######################################
+
+primary_csv_etf_latest_dividends:
+  filepath: ${data_parent}\03_primary\latest_dividends_etfs.csv
+  <<: *csv
+  
+  
+######################################
+##### P210_eng_stock_objects
+######################################
+
+primary_parts_ETF_stock_objects:
+  type: PartitionedDataSet
+  path: ${data_parent}\03_primary\stock_objects
+  filename_suffix: ".pkl"
+  dataset: 
+    type: pickle.PickleDataSet
+    
+    
+######################################
+##### P300_strat001_hma_distributions
+######################################
+
+strat001_inmem_filtered_stocks:
+  type: MemoryDataSet
+
+
+
+
+
+
+
+
+
+etf_information:
+  type: pandas.CSVDataSet
+  filepath: ${data_parent}\03_primary\etf_information.csv
+
+
 
 
 

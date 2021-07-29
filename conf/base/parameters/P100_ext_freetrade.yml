@@ -1,0 +1,13 @@
+# This is a boilerplate parameters config generated for pipeline 'P100_ext_freetrade'
+# using Kedro 0.17.0.
+#
+# Documentation for this file format can be found in "Parameters"
+# Link: https://kedro.readthedocs.io/en/stable/04_kedro_project_setup/02_configuration.html#parameters
+
+freetrade_mic_remap:
+  'XLON': 'London'
+  'XNYS': 'NYSE'
+  'XNAS': 'NASDAQ'
+
+alpha_vantage_symbol_suffix:
+  'XLON': '.LON'
