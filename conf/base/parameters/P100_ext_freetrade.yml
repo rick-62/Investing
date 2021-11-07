@@ -11,3 +11,9 @@ freetrade_mic_remap:
 
 alpha_vantage_symbol_suffix:
   'XLON': '.LON'
+
+yahoo_symbol_suffix:
+  'XLON': '.L'
+
+yahoo_symbol_correction:
+  'BTA.L': 'BT-A.L'

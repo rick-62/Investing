@@ -39,7 +39,7 @@ def create_pipeline(**kwargs):
     return Pipeline([
         node(
             func=cleanse_freetrade,
-            inputs=['raw_csv_freetrade', 'params:freetrade_mic_remap', 'params:alpha_vantage_symbol_suffix'],
+            inputs=['raw_csv_freetrade', 'parameters'],
             outputs='int_csv_freetrade_cleansed',
             name='cleanse_freetrade'
         )
