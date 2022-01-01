@@ -37,17 +37,19 @@ from .nodes import cleanse_portfolio, extract_current_holdings
 
 
 def create_pipeline(**kwargs):
-    return Pipeline([
-        node(
-            func=cleanse_portfolio,
-            inputs=['raw_csv_portfolio', 'params:portfolio_remap'],
-            outputs='inmem_portfolio_cleansed',
-            name='P110_cleanse_portfolio'
-        ),
-        node(
-            func=extract_current_holdings,
-            inputs='inmem_portfolio_cleansed',
-            outputs='primary_csv_current_holdings',
-            name='P110_extract_current_holdings'
-        ),
-    ])
+    return Pipeline(
+        [
+            node(
+                func=cleanse_portfolio,
+                inputs=["raw_csv_portfolio", "params:portfolio_remap"],
+                outputs="inmem_portfolio_cleansed",
+                name="P110_cleanse_portfolio",
+            ),
+            node(
+                func=extract_current_holdings,
+                inputs="inmem_portfolio_cleansed",
+                outputs="primary_csv_current_holdings",
+                name="P110_extract_current_holdings",
+            ),
+        ]
+    )

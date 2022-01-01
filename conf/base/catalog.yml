@@ -22,6 +22,8 @@ raw_csv_freetrade:
 
 int_csv_freetrade_cleansed:
   filepath: ${data_parent}\02_intermediate\freetrade_cleansed.csv
+  load_args:
+    index_col: isin
   <<: *csv
   
 
@@ -102,6 +104,22 @@ int_parts_alphavantage_etf_historic_cleansed:
 ######################################
 
 
+######################################
+##### P150_ext_justetf
+######################################
+
+raw_dict_justetf_responses:
+  type: PartitionedDataSet
+  path: ${data_parent}\02_intermediate\justetf_scraped_data
+  filename_suffix: ".pkl"
+  dataset: 
+    type: pickle.PickleDataSet
+
+int_justetf_dividend_summary:
+  filepath: ${data_parent}\02_intermediate\justetf_dividend_summary.csv
+  load_args:
+    index_col: ISIN
+  <<: *csv
 
 
 ######################################
@@ -112,7 +130,17 @@ primary_csv_etf_latest_dividends:
   filepath: ${data_parent}\03_primary\latest_dividends_etfs.csv
   <<: *csv
   
-  
+
+######################################
+##### P205_eng_ETF_dividends
+######################################
+
+primary_ETF_dividend_summary:
+  filepath: ${data_parent}\03_primary\top_dividends_etfs.csv
+  <<: *csv
+
+
+
 ######################################
 ##### P210_eng_stock_objects
 ######################################

@@ -1,12 +1,11 @@
-
 import pandas as pd
 import numpy as np
 
 from finta import TA
 
-@classmethod        
-def TRAMA(cls, ohlc: pd.DataFrame, period: int, column='close') -> pd.Series:    
 
+@classmethod
+def TRAMA(cls, ohlc: pd.DataFrame, period: int, column="close") -> pd.Series:
     def hh():
         _max = ohlc[column].rolling(window=period).max()
         return np.maximum(np.sign(_max - _max.shift(1)), 0).fillna(0)
@@ -17,8 +16,8 @@ def TRAMA(cls, ohlc: pd.DataFrame, period: int, column='close') -> pd.Series:
 
     def tc():
         return np.power(
-            np.logical_or( ll(), hh() ).astype('uint8')
-            .rolling(window=period).mean(), 2)
+            np.logical_or(ll(), hh()).astype("uint8").rolling(window=period).mean(), 2
+        )
 
     ama = []
     for a, b in zip(ohlc[column], tc()):
@@ -36,5 +35,3 @@ def TRAMA(cls, ohlc: pd.DataFrame, period: int, column='close') -> pd.Series:
 
 # monkey-patch custom technical indicators
 TA.TRAMA = TRAMA
-
-

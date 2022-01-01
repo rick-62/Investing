@@ -5,16 +5,19 @@ import scipy.ndimage
 
 from typing import List, Optional
 
-np.seterr(invalid='ignore')
+np.seterr(invalid="ignore")
+
 
 def suppress_runtime_warning():
     def decorate(func):
         def call(*args, **kwargs):
             with warnings.catch_warnings():
-                warnings.simplefilter('ignore')
+                warnings.simplefilter("ignore")
                 result = func(*args, **kwargs)
             return result
+
         return call
+
     return decorate
 
 
@@ -44,7 +47,7 @@ def RSI(close, n):
     rsi = np.zeros_like(close)
 
     # first n values calculated using this formula
-    rsi[:n] = 100. - 100. / (1. + rs)
+    rsi[:n] = 100.0 - 100.0 / (1.0 + rs)
 
     # calculate remaining rsi values on at a time
     for i in range(n, len(close)):
@@ -53,9 +56,9 @@ def RSI(close, n):
         # determine if increase or decrease
         if delta > 0:
             upval = delta
-            downval = 0.
+            downval = 0.0
         else:
-            upval = 0.
+            upval = 0.0
             downval = -delta
 
         # sum with new values and create new average
@@ -69,12 +72,13 @@ def RSI(close, n):
             rs = up / down
 
         # next rsi calculated
-        rsi[i] = 100. - 100. / (1. + rs)
+        rsi[i] = 100.0 - 100.0 / (1.0 + rs)
 
     # replaces first n values with nan alternatives
     rsi[:n] = np.nan
 
     return rsi
+
 
 def CCI(high, low, close, win):
     """Commodity Channel Index: compares current price to average"""
@@ -84,6 +88,7 @@ def CCI(high, low, close, win):
     cci = (pt - sma) / (0.015 * tpt)
     return cci
 
+
 @suppress_runtime_warning()
 def STOK(high, low, close, n):
     """Stochastic Oscillator"""
@@ -91,6 +96,7 @@ def STOK(high, low, close, n):
     low_win = _simple_moving_min(low, n)
     k = np.divide(close - low_win, np.subtract(high_win, low_win))
     return 100 * k
+
 
 def OBV(close, volume):
     """On-Balance Volume"""
@@ -100,14 +106,16 @@ def OBV(close, volume):
         if d == 0:
             obv.append(obv[-1])
         elif d > 0:
-            obv.append(obv[-1] + volume[i+1])
+            obv.append(obv[-1] + volume[i + 1])
         elif d < 0:
-            obv.append(obv[-1] - volume[i+1])
+            obv.append(obv[-1] - volume[i + 1])
     return np.array(obv)
+
 
 def OBVMA(close, volume, n):
     """On-Balance Volume Moving Average"""
     return _simple_moving_average(OBV(close, volume), n)
+
 
 @suppress_runtime_warning()
 def WilliamsPctRange(high, low, close, n):
@@ -116,17 +124,19 @@ def WilliamsPctRange(high, low, close, n):
     high_n = _rolling_max(high, n, dir=1)
     return -100 * (high_n - close) / (high_n - low_n)
 
+
 def MoneyFlow(high, low, close, volume, n):
     """Returns Money Flow Index based on RSI"""
     pt = np.divide(high + low + close, 3)
     mfr = np.multiply(pt, volume)
     return RSI(mfr, n)
 
+
 def PPO(close, n, m):
     """Returns Percentage Price Oscillator using EMA"""
-    ppo = np.multiply(np.divide(_ema(close, n) - _ema(close, m),
-                                _ema(close, m)), 100)
+    ppo = np.multiply(np.divide(_ema(close, n) - _ema(close, m), _ema(close, m)), 100)
     return ppo
+
 
 def RelativeEMA(close, n):
     """Returns EMA relative to price"""
@@ -134,17 +144,19 @@ def RelativeEMA(close, n):
     shifted_ema = _shift(_ema(close, n), 1, len(close))
     return np.multiply(close - shifted_ema, multiplier) + shifted_ema
 
+
 def EMACD(close, n, m):
     """Calculates Exponential Moving Average Difference"""
     ema1 = _ema(close, n)
     ema2 = _ema(close, m)
     return 100 * (ema1 - ema2) / ema2
 
+
 def PROC(close, n):
     """Price Rate of Change"""
     shifted_close = _shift(close, n, len(close))
-    return np.multiply(
-        np.divide(close - shifted_close, shifted_close), 100)
+    return np.multiply(np.divide(close - shifted_close, shifted_close), 100)
+
 
 def ATR(high, low, close, n):
     """Average True Range, to measure volatility range (stop loss)"""
@@ -155,15 +167,17 @@ def ATR(high, low, close, n):
     true_range = np.max(ranges, axis=1)
     return _rolling_sum(true_range, n, dir=1) / n
 
+
 def Weekday(date):
     """Day of the week as an integer"""
     weekdays = pd.DataFrame(date)
     return np.array(weekdays.date.dt.weekday_name)
 
-def Y(close, threshold=0, polarity='pos', days=1):
-    if polarity == 'neg':
+
+def Y(close, threshold=0, polarity="pos", days=1):
+    if polarity == "neg":
         return _diff(num=_rolling_min(close, days), den=close) < threshold
-    elif polarity == 'pos':
+    elif polarity == "pos":
         return _diff(num=_rolling_max(close, days), den=close) > threshold
     else:
         raise NameError
@@ -182,9 +196,10 @@ def gaussian_filter(a, sigma):
 def _rolling_window(a, win):
     """Efficiently creates rolling arrays to perform functions on"""
     shape = a.shape[:-1] + (a.shape[-1] - win + 1, win)
-    a = np.array(a) # strides removed from Pandas Series so requires converting
+    a = np.array(a)  # strides removed from Pandas Series so requires converting
     strides = a.strides + (a.strides[-1],)
     return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
+
 
 def _simple_moving_average(a, win):
     """Uses the rolling window function to return rolling mean"""
@@ -193,9 +208,9 @@ def _simple_moving_average(a, win):
 
 def _ema(a, win):
     """Calculates Exponential Moving Average"""
-    weights = np.exp(np.linspace(-1., 0., win))
+    weights = np.exp(np.linspace(-1.0, 0.0, win))
     weights /= weights.sum()
-    ema = np.convolve(a, weights)[:len(a)]
+    ema = np.convolve(a, weights)[: len(a)]
     ema[:win] = ema[win]
     return ema
 
@@ -217,7 +232,7 @@ def _simple_moving_min(a, win):
 
 def _simple_moving_median(a, win):
     """Uses the rolling window function to return rolling median"""
-    return _shift(np.median(_rolling_window(a, win), axis=1), win, len(a))    
+    return _shift(np.median(_rolling_window(a, win), axis=1), win, len(a))
 
 
 def _rolling_max(a, days, dir=-1):
@@ -237,6 +252,7 @@ def _rolling_sum(a, days, dir=-1):
     shift = dir * (days - 1)
     return _shift(np.sum(_rolling_window(a, days), axis=1), shift, len(a))
 
+
 def _rolling_median(a, days, dir=-1):
     """Uses the rolling window function to return rolling median"""
     shift = dir * (days - 1)
@@ -246,12 +262,12 @@ def _rolling_median(a, days, dir=-1):
 def _shift(arr, num, len_, fill_value=np.nan):
     """specific for padding/shifting days and windows"""
     result = np.empty(len_)
-    if num > 0: 
+    if num > 0:
         result[:num] = fill_value
-        result[num:] = arr[:len_-num]
+        result[num:] = arr[: len_ - num]
     elif num < 0:
         result[num:] = fill_value
-        result[:num] = arr[-len_-num:]
+        result[:num] = arr[-len_ - num :]
     else:
         result = arr
     return result
@@ -261,16 +277,17 @@ def _diff(num, den):
     """calculates % diff between two series and returns series"""
     return 100 * (num - den) / den
 
+
 def _convert_str_to_date(array):
-    return pd.to_datetime(array, format='%Y-%m-%d')
+    return pd.to_datetime(array, format="%Y-%m-%d")
 
 
 def _scaling(arr, lower, upper):
     """normalises an array between the upper and lower"""
-    return (upper - lower) * ( arr - np.min(arr) ) / ( np.max(arr) - np.min(arr) )
+    return (upper - lower) * (arr - np.min(arr)) / (np.max(arr) - np.min(arr))
+
 
 def TRAMA(series: pd.Series, n: int):
-
     def hh():
         _max = series.rolling(window=n).max()
         return np.maximum(np.sign(_max - _max.shift(1)), 0).fillna(0)
@@ -280,10 +297,11 @@ def TRAMA(series: pd.Series, n: int):
         return np.maximum(np.sign(_min.shift(1) - _min), 0).fillna(0)
 
     def tc():
-        def squared(x): return np.power(x, 2)
+        def squared(x):
+            return np.power(x, 2)
+
         return squared(
-            np.logical_or( ll(), hh() ).astype('uint8')
-            .rolling(window=n).mean()
+            np.logical_or(ll(), hh()).astype("uint8").rolling(window=n).mean()
         )
 
     ama = []
@@ -299,7 +317,10 @@ def TRAMA(series: pd.Series, n: int):
 
     return ama
 
-def weighted_moving_average(series: List[float], lookback: Optional[int] = None) -> float:
+
+def weighted_moving_average(
+    series: List[float], lookback: Optional[int] = None
+) -> float:
     if not lookback:
         lookback = len(series)
     if len(series) == 0:
@@ -318,18 +339,8 @@ def hull_moving_average_point(series: List[float], lookback: int) -> float:
     assert lookback > 0
     hma_series = []
     for k in range(int(lookback ** 0.5), -1, -1):
-        s = series[:-k or None]
+        s = series[: -k or None]
         wma_half = weighted_moving_average(s, min(lookback // 2, len(s)))
         wma_full = weighted_moving_average(s, min(lookback, len(s)))
         hma_series.append(wma_half * 2 - wma_full)
     return weighted_moving_average(hma_series)
-
-
-
-
-
-
-    
-
-
-    

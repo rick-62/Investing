@@ -27,16 +27,18 @@
 # limitations under the License.
 
 """
-This is a boilerplate pipeline 'P120_ext_investpy'
+This is a boilerplate pipeline 'P150_ext_justetf'
 generated using Kedro 0.17.0
 """
 
 from kedro.pipeline import Pipeline, node
+
 from .nodes import (
-    load_investpy_stock_lists,
-    create_freetrade_investpy_etf_list,
-    download_etf_investpy_historic,
-    download_etf_investpy_information,
+    filter_freetrade_stocks,
+    verify_sample_justetf_webscrape,
+    download_pages_from_justetf,
+    scrape_key_data_from_justetf_reponses,
+    create_etf_dividend_summary,
 )
 
 
@@ -44,36 +46,40 @@ def create_pipeline(**kwargs):
     return Pipeline(
         [
             node(
-                func=load_investpy_stock_lists,
-                inputs=None,
-                outputs=[
-                    "raw_csv_investpy_stocks",
-                    "raw_csv_investpy_etfs",
-                    "raw_csv_investpy_indices",
-                ],
-                name="P120_load_investpy_stock_lists",
+                func=filter_freetrade_stocks,
+                inputs="int_csv_freetrade_cleansed",
+                outputs="inmem_freetrade_filtered",
+                name="filter_freetrade_stocks"
             ),
             node(
-                func=create_freetrade_investpy_etf_list,
-                inputs=["int_csv_freetrade_cleansed", "raw_csv_investpy_etfs"],
-                outputs="int_csv_freetrade_investpy_etf_list",
-                name="P120_create_freetrade_investpy_etf_list",
+                func=lambda df: frozenset(df['isin']),
+                inputs="inmem_freetrade_filtered",
+                outputs="inmem_etf_isins",
+                name="extract_Freetrade_ETF_isins",
             ),
             node(
-                func=download_etf_investpy_historic,
-                inputs=[
-                    "int_csv_freetrade_investpy_etf_list",
-                    "params:from_date",
-                    "params:sleep",
-                ],
-                outputs="raw_parts_investpy_etf_historic",
-                name="P120_download_etf_investpy_historic",
+                func=verify_sample_justetf_webscrape,
+                inputs="params:http_headers",
+                outputs="inmem_dummy",
+                name="test_justetf_scrape"
             ),
             node(
-                func=download_etf_investpy_information,
-                inputs=["int_csv_freetrade_investpy_etf_list", "params:sleep"],
-                outputs="raw_parts_investpy_etf_information",
-                name="P120_download_etf_investpy_information",
+                func= download_pages_from_justetf,
+                inputs=["inmem_etf_isins", "params:http_headers", "inmem_dummy"],
+                outputs="raw_dict_justetf_responses",
+                name="scrape_justetf",
+            ),
+            node(
+                func=scrape_key_data_from_justetf_reponses,
+                inputs="raw_dict_justetf_responses",
+                outputs="inmem_justetf_data",
+                name="extract_justetf_data"
+            ),
+            node(
+                func=create_etf_dividend_summary,
+                inputs="inmem_justetf_data",
+                outputs="int_justetf_dividend_summary",
+                name="create_justetf_dividend_summary",
             ),
         ]
     )

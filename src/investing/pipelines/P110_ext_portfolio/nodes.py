@@ -37,10 +37,10 @@ from typing import Dict
 def cleanse_portfolio(portfolio: pd.DataFrame, portfolio_remap: Dict) -> pd.DataFrame:
 
     # remove .L from symbols (for joining to Freetrade)
-    portfolio['symbol_ft'] = portfolio.Symbol.str.replace(r'.L$', '', regex=True)
+    portfolio["symbol_ft"] = portfolio.Symbol.str.replace(r".L$", "", regex=True)
 
     # remap exchange column, to match column used in ETFs
-    portfolio['stock_exchange'] = portfolio.Exchange.replace(portfolio_remap)
+    portfolio["stock_exchange"] = portfolio.Exchange.replace(portfolio_remap)
 
     # remove blank rows (Type is 'Buy', 'Sell' or 'Dividend')
     portfolio[~portfolio.Type.isna()]
@@ -51,20 +51,18 @@ def cleanse_portfolio(portfolio: pd.DataFrame, portfolio_remap: Dict) -> pd.Data
 def extract_current_holdings(portfolio: pd.DataFrame) -> pd.DataFrame:
 
     # consider only Type buy or sell with intention of extracting only current holdings
-    holdings = portfolio[portfolio.Type.isin(['Buy', 'Sell'])].copy()
+    holdings = portfolio[portfolio.Type.isin(["Buy", "Sell"])].copy()
 
     # convert Quantity to negative when stocks are sold
-    holdings['type_num'] = holdings.Type.replace({'Buy': 1, 'Sell': -1})
-    holdings.eval('Quantity = type_num * Quantity', inplace=True) 
+    holdings["type_num"] = holdings.Type.replace({"Buy": 1, "Sell": -1})
+    holdings.eval("Quantity = type_num * Quantity", inplace=True)
 
     # sum total stocks sold and bought to identify current holdings
-    holdings = holdings.groupby(['symbol_ft', 'stock_exchange'])['Quantity'].sum()
+    holdings = holdings.groupby(["symbol_ft", "stock_exchange"])["Quantity"].sum()
 
     # filter only current holdings
     holdings = (
-        holdings[holdings > 0]
-        .reset_index()
-        .rename({'Quantity': 'shares_held'}, axis=1)
+        holdings[holdings > 0].reset_index().rename({"Quantity": "shares_held"}, axis=1)
     )
 
     return holdings

@@ -41,11 +41,16 @@ from scipy import stats
 from functools import lru_cache
 from investing.common.technical_indicators import TA
 
-class Stock():
 
-    today = pd.to_datetime('today')
+class Stock:
+
+    today = pd.to_datetime("today")
     eng_hols = holidays.England(years=range(1990, today.year + 1)).keys()
-    distributions = ['nct', 'johnsonsu', 'tukeylambda',]
+    distributions = [
+        "nct",
+        "johnsonsu",
+        "tukeylambda",
+    ]
 
     def __init__(self, symbol, historic, dividends, information) -> None:
         self.symbol = symbol
@@ -53,25 +58,24 @@ class Stock():
         self.daily_change = self._calculate_daily_valid_price_difference()
         self._fill_missing_time_series()
         self._load_dividends(dividends)
-        self.asset_class = information['Asset Class']
-
+        self.asset_class = information["Asset Class"]
 
     def _load_historic(self, df):
-        
+
         # convert date format and set index
         df.date = pd.to_datetime(df.date)
-        df.set_index('date', inplace=True)
+        df.set_index("date", inplace=True)
 
         # create new column to track missing data
-        df['missing'] = False
+        df["missing"] = False
 
         # set up complete list of dates
         weekdays = set(pd.bdate_range(min(df.index), end=Stock.today).date)
-        business_dates = pd.DataFrame(index = weekdays - Stock.eng_hols).sort_index()
+        business_dates = pd.DataFrame(index=weekdays - Stock.eng_hols).sort_index()
 
         # join to complete list of dates, to fill in missing rows
-        df = business_dates.join(df, how='left')
-        df['missing'].fillna(True, inplace=True)
+        df = business_dates.join(df, how="left")
+        df["missing"].fillna(True, inplace=True)
 
         return df
 
@@ -79,15 +83,18 @@ class Stock():
         for key, value in div.items():
             setattr(self, key, value)
 
-    def _calculate_daily_valid_price_difference(self, price_column='close'):
+    def _calculate_daily_valid_price_difference(self, price_column="close"):
 
         daily_change = pd.DataFrame(index=self.time_series.index)
 
-        daily_change['change'] = np.divide(
-            self.time_series[price_column], self.time_series[price_column].shift(1)) - 1
+        daily_change["change"] = (
+            np.divide(
+                self.time_series[price_column], self.time_series[price_column].shift(1)
+            )
+            - 1
+        )
 
-        return daily_change.dropna()['change']
-
+        return daily_change.dropna()["change"]
 
     def fit_distribution(self, custom_dates=None, attr_name=None):
 
@@ -95,35 +102,31 @@ class Stock():
 
         if custom_dates:
             dc = dc.loc[dc.index.intersection(pd.to_datetime(custom_dates))]
-        
+
         results = {}
         for i in Stock.distributions:
             dist = getattr(stats, i)
             param = dist.fit(dc)
             pvalue = stats.kstest(dc, i, args=param)[1]
             results[pvalue] = dist(*param)
-        
+
         best_dist = results[max(results.keys())]
 
         if attr_name:
             setattr(self, attr_name, best_dist)
-        
-        return best_dist
 
+        return best_dist
 
     def mean_empirical_return(self, periods: int = 20):
         return (np.mean(self.daily_change) + 1) ** periods
-
 
     def mean_distribution_return(self, periods: int = 20):
         dist = self.fit_distribution()
         return (dist.mean() + 1) ** periods
 
-
-    def _fill_missing_time_series(self, column='close'):
-        self.time_series[column].fillna(method='ffill', inplace=True)
-        self.time_series[column].fillna(method='bfill', inplace=True)
-
+    def _fill_missing_time_series(self, column="close"):
+        self.time_series[column].fillna(method="ffill", inplace=True)
+        self.time_series[column].fillna(method="bfill", inplace=True)
 
     def apply_technical_indicator(self, name: str, **params):
 
@@ -133,7 +136,7 @@ class Stock():
         self.time_series[series.name] = series
 
     def is_dividend_upcoming(self, start, end):
-        try: 
+        try:
             date = pd.to_datetime(self.approx_next_dividend_date)
             return (date >= start) & (date <= end)
         except AttributeError:
@@ -148,27 +151,26 @@ class Stock():
     def latest(self, column_name):
         return self.time_series[column_name].tail(1)[0]
 
+
 ###############################################################################
+
 
 def create_stock_objects(historic: Dict, info: Dict, dividends: pd.DataFrame):
 
-    dividends.set_index('symbol', inplace=True)
+    dividends.set_index("symbol", inplace=True)
 
     stocks = {}
 
     for symbol, data in historic.items():
 
         df_historic = data()
-        information = info[
-            [d for d in info.keys() if symbol.split('.')[0] in d][0]]()
-        
+        information = info[[d for d in info.keys() if symbol.split(".")[0] in d][0]]()
+
         try:
             div = dividends.loc[symbol].to_dict()
         except KeyError:
             div = {}
 
         stocks[symbol] = Stock(symbol, df_historic, div, information)
-        
+
     return stocks
-
-

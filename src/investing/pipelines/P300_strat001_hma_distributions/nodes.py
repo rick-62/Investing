@@ -40,49 +40,60 @@ from typing import Counter, Dict, List
 
 warnings.filterwarnings("ignore")
 
-def pre_selected(stock: object, asset_class: str = 'Equity', row_threshold: int = 1000) -> bool: 
+
+def pre_selected(
+    stock: object, asset_class: str = "Equity", row_threshold: int = 1000
+) -> bool:
     # apply general filter to select only equities and above threshold row count
-    return (
-        (stock.asset_class == asset_class) and
-        (len(stock.daily_change) > row_threshold)
+    return (stock.asset_class == asset_class) and (
+        len(stock.daily_change) > row_threshold
     )
 
 
 def value_or_momentum(hma: float, trama: float, price: float) -> str:
     # identify which are value and which momentum
     if price > hma:
-        return 'momentum'
+        return "momentum"
     elif (trama < hma) and (trama > price):
-        return 'value'
+        return "value"
     else:
         return None
 
-def recent_hma_breach(time_series: pd.DataFrame, hma_col_name: str, price_col_name: str, period: int = 20) -> bool:
+
+def recent_hma_breach(
+    time_series: pd.DataFrame, hma_col_name: str, price_col_name: str, period: int = 20
+) -> bool:
     recent_data = time_series.tail(period)
     hma = recent_data[hma_col_name]
     price = recent_data[price_col_name]
-    return (
-        any(hma.tail(period) < price.tail(period)) and 
-        any(hma.tail(period) > price.tail(period))
+    return any(hma.tail(period) < price.tail(period)) and any(
+        hma.tail(period) > price.tail(period)
     )
 
-def calculate_stop_loss(roc: float, hma: float, price: float, period: int = 20) -> float:
+
+def calculate_stop_loss(
+    roc: float, hma: float, price: float, period: int = 20
+) -> float:
     # cap stop loss at current amount (i.e. if negative)
-    stop_loss = hma * (1 + roc/100) ** period if roc > 0 else hma
+    stop_loss = hma * (1 + roc / 100) ** period if roc > 0 else hma
     # do not return stop loss if stop loss is not below price
     return stop_loss if stop_loss < price else None
 
 
 def create_custom_dates(time_series: pd.DataFrame, query: str, offset: int = 0):
     return [
-        date + pd.DateOffset(offset) for date in 
-        time_series.query(query).index.tolist()
-        ]
+        date + pd.DateOffset(offset) for date in time_series.query(query).index.tolist()
+    ]
 
 
 def loop_through_stocks(
-    data: Dict, hma_period: int, trama_period: int, rebalance_period: int, roc_column_name: str, etfs: List[str]
-    ) -> List[object]:
+    data: Dict,
+    hma_period: int,
+    trama_period: int,
+    rebalance_period: int,
+    roc_column_name: str,
+    etfs: List[str],
+) -> List[object]:
 
     hma_period = hma_period
     trama_period = trama_period
@@ -92,34 +103,34 @@ def loop_through_stocks(
     eligible_stocks = []
     stop_losses = []
 
-    # for each stock 
+    # for each stock
     for symbol in etfs:
         print(symbol)
 
         stock = data[symbol]()
-        stock.apply_technical_indicator('HMA', period=hma_period)
-        stock.apply_technical_indicator('TRAMA', period=trama_period)
-        stock.apply_technical_indicator('ROC', period=1, column=hma_column_name)
+        stock.apply_technical_indicator("HMA", period=hma_period)
+        stock.apply_technical_indicator("TRAMA", period=trama_period)
+        stock.apply_technical_indicator("ROC", period=1, column=hma_column_name)
 
         # print(symbol)
-        
+
         if not pre_selected(stock):
             continue
 
         # print(f"{symbol} has been pre-selected")
 
         stock.itype = value_or_momentum(
-            hma = stock.latest(hma_column_name),
-            trama = stock.latest(trama_column_name),
-            price = stock.latest('close')
+            hma=stock.latest(hma_column_name),
+            trama=stock.latest(trama_column_name),
+            price=stock.latest("close"),
         )
 
         # HMA line is momentum stop loss
         stock.stop_loss = calculate_stop_loss(
-            roc = stock.latest(roc_column_name),
-            hma = stock.latest(hma_column_name),
-            price = stock.latest('close'),
-            period = rebalance_period
+            roc=stock.latest(roc_column_name),
+            hma=stock.latest(hma_column_name),
+            price=stock.latest("close"),
+            period=rebalance_period,
         )
 
         # create an output of stop losses to update current holdings
@@ -127,34 +138,45 @@ def loop_through_stocks(
             stop_losses.append(stock)
 
         # for momentum stocks calculate distribution above HMA
-        if stock.itype == 'momentum': 
+        if stock.itype == "momentum":
 
             stock.fit_distribution(
-                custom_dates = create_custom_dates(stock.time_series, query=f'close > `{hma_column_name}`', offset=rebalance_period),
-                attr_name = 'dist'
+                custom_dates=create_custom_dates(
+                    stock.time_series,
+                    query=f"close > `{hma_column_name}`",
+                    offset=rebalance_period,
+                ),
+                attr_name="dist",
             )
 
             # if stop loss triggered, skip stock
             if not stock.stop_loss:
-                continue 
+                continue
 
             # skip stock if not a recent crossover of HMA, avoiding peaks by only investing at beginning of uptrend
-            if not recent_hma_breach(stock.time_series, hma_col_name=hma_column_name, price_col_name='close', period=rebalance_period):
+            if not recent_hma_breach(
+                stock.time_series,
+                hma_col_name=hma_column_name,
+                price_col_name="close",
+                period=rebalance_period,
+            ):
                 continue
 
         # for value stocks calculate total distribution
-        elif stock.itype == 'value':
+        elif stock.itype == "value":
             stock.fit_distribution(
-                custom_dates = create_custom_dates(
-                    stock.time_series, 
-                    query=f'(close < `{trama_column_name}`) and (`{trama_column_name}` < `{hma_column_name}`)', 
-                    offset=rebalance_period),
-                attr_name = 'dist')
+                custom_dates=create_custom_dates(
+                    stock.time_series,
+                    query=f"(close < `{trama_column_name}`) and (`{trama_column_name}` < `{hma_column_name}`)",
+                    offset=rebalance_period,
+                ),
+                attr_name="dist",
+            )
 
         # skip if not appropiate time to invest
         else:
             continue
-        
+
         print(f"{symbol} added to eligible stocks")
         eligible_stocks.append(stock)
 
@@ -169,7 +191,7 @@ def loop_through_stocks(
 
 class Cash:
 
-    symbol = 'Cash'
+    symbol = "Cash"
     stop_loss = 0
 
     class dist:
@@ -180,8 +202,6 @@ class Cash:
     def upcoming_dividend(start, end):
         return 0
 
-    
-
 
 def balance_portfolio(stocks: List[object], rebalance_period: int, top: int, n: int):
 
@@ -189,20 +209,23 @@ def balance_portfolio(stocks: List[object], rebalance_period: int, top: int, n: 
     stocks.append(Cash)
 
     # dates
-    today = pd.to_datetime('today')
-    start = today + pd.to_timedelta(7 - today.weekday(), unit='d')  # following Monday
-    end = start + pd.to_timedelta(7 + rebalance_period, unit='d')  # 4 x 7 - 1 (ends Sunday)
+    today = pd.to_datetime("today")
+    start = today + pd.to_timedelta(7 - today.weekday(), unit="d")  # following Monday
+    end = start + pd.to_timedelta(
+        7 + rebalance_period, unit="d"
+    )  # 4 x 7 - 1 (ends Sunday)
 
     def simulate(minmax):
         cnt = Counter(  # get count of max dist, per index
             getattr(np, minmax)(  # index of max/min, per element (length: n)
-                [ 
+                [
                     (1 + stock.dist.rvs(n * rebalance_period))
                     .reshape((n, rebalance_period))
-                    .prod(axis=1) + (stock.upcoming_dividend(start, end))  # prod per days (length: n)
+                    .prod(axis=1)
+                    + (stock.upcoming_dividend(start, end))  # prod per days (length: n)
                     for stock in stocks
-                ], 
-                axis=0
+                ],
+                axis=0,
             )
         )
         return cnt
@@ -211,19 +234,26 @@ def balance_portfolio(stocks: List[object], rebalance_period: int, top: int, n: 
     symbol_map = {i: stock for i, stock in enumerate(stocks)}
 
     # subtract losses from wins
-    result = simulate('argmax') - simulate('argmin')  
+    result = simulate("argmax") - simulate("argmin")
 
     # get total of amounts
     denom = sum(result.values())
 
     # sort and portion stocks
-    portfolio = sorted([(symbol_map[key], value / denom) for key, value in result.items()], key=lambda x: x[1], reverse=True)
+    portfolio = sorted(
+        [(symbol_map[key], value / denom) for key, value in result.items()],
+        key=lambda x: x[1],
+        reverse=True,
+    )
 
     # print results
     for stock, pct in portfolio:
         pct = min(pct, 0.20)  # max 20% per investment
         if stock.stop_loss:
-            print(stock.symbol, f"\t{round(pct, 3)*100:.2f}%", f"\tstop loss = {stock.stop_loss:.2f}")
+            print(
+                stock.symbol,
+                f"\t{round(pct, 3)*100:.2f}%",
+                f"\tstop loss = {stock.stop_loss:.2f}",
+            )
         else:
             print(stock.symbol, f"\t{round(pct, 3)*100:.2f}%")
-

@@ -37,11 +37,13 @@ from .nodes import extract_latest_dividend_data
 
 
 def create_pipeline(**kwargs):
-    return Pipeline([
-        node(
-            func=extract_latest_dividend_data,
-            inputs='int_parts_alphavantage_etf_historic_cleansed',
-            outputs='primary_csv_etf_latest_dividends',
-            name='P200_extract_latest_dividend_data'
-        ),
-    ])
+    return Pipeline(
+        [
+            node(
+                func=extract_latest_dividend_data,
+                inputs="int_parts_alphavantage_etf_historic_cleansed",
+                outputs="primary_csv_etf_latest_dividends",
+                name="P200_extract_latest_dividend_data",
+            ),
+        ]
+    )

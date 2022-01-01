@@ -37,29 +37,31 @@ from kedro.pipeline import Pipeline, node
 
 
 def create_pipeline(**kwargs):
-    return Pipeline([
-        node(
-            func=loop_through_stocks,
-            inputs=[
-                'primary_parts_ETF_stock_objects', 
-                'params:hma_period',
-                'params:trama_period',
-                'params:rebalance_period',
-                'params:roc_column_name',
-                'params:etfs'
-            ],
-            outputs='strat001_inmem_filtered_stocks',
-            name='P300_strat001_loop_through_stocks'
-        ),
-        node(
-            func=balance_portfolio,
-            inputs=[
-                'strat001_inmem_filtered_stocks', 
-                'params:rebalance_period',
-                'params:top',
-                'params:n'
+    return Pipeline(
+        [
+            node(
+                func=loop_through_stocks,
+                inputs=[
+                    "primary_parts_ETF_stock_objects",
+                    "params:hma_period",
+                    "params:trama_period",
+                    "params:rebalance_period",
+                    "params:roc_column_name",
+                    "params:etfs",
                 ],
-            outputs=None,
-            name='P300_strat001_balance_portfolio'
-        ),
-    ])
+                outputs="strat001_inmem_filtered_stocks",
+                name="P300_strat001_loop_through_stocks",
+            ),
+            node(
+                func=balance_portfolio,
+                inputs=[
+                    "strat001_inmem_filtered_stocks",
+                    "params:rebalance_period",
+                    "params:top",
+                    "params:n",
+                ],
+                outputs=None,
+                name="P300_strat001_balance_portfolio",
+            ),
+        ]
+    )

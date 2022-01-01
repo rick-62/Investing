@@ -29,9 +29,10 @@
 """Project hooks."""
 import warnings
 from typing import Any, Dict, Iterable, Optional
+from kedro import pipeline
 
 from kedro.config import ConfigLoader
-from kedro.config import TemplatedConfigLoader 
+from kedro.config import TemplatedConfigLoader
 from kedro.framework.hooks import hook_impl
 from kedro.io import DataCatalog
 from kedro.pipeline import Pipeline
@@ -40,12 +41,23 @@ from kedro.versioning import Journal
 from investing.pipelines.P100_ext_freetrade import pipeline as P100_ext_freetrade
 from investing.pipelines.P110_ext_portfolio import pipeline as P110_ext_portfolio
 from investing.pipelines.P120_ext_investpy import pipeline as P120_ext_investpy
-from investing.pipelines.P130_ext_alpha_vantage import pipeline as P130_ext_alpha_vantage
+from investing.pipelines.P130_ext_alpha_vantage import (
+    pipeline as P130_ext_alpha_vantage,
+)
+from investing.pipelines.P150_ext_justetf import pipeline as P150_ext_justetf
 from investing.pipelines.P200_eng_dividends import pipeline as P200_eng_dividends
-from investing.pipelines.P210_eng_stock_objects import pipeline as P210_eng_stock_objects
-from investing.pipelines.P300_strat001_hma_distributions import pipeline as P300_strat001_hma_distributions
+from investing.pipelines.P205_eng_ETF_dividends import pipeline as P205_eng_ETF_dividends
+from investing.pipelines.P210_eng_stock_objects import (
+    pipeline as P210_eng_stock_objects,
+)
+from investing.pipelines.P300_strat001_hma_distributions import (
+    pipeline as P300_strat001_hma_distributions,
+)
 
-warnings.filterwarnings("ignore", category=DeprecationWarning)      # ignore depracation warnings
+warnings.filterwarnings(
+    "ignore", category=DeprecationWarning
+)  # ignore depracation warnings
+
 
 class ProjectHooks:
     @hook_impl
@@ -62,33 +74,40 @@ class ProjectHooks:
             "P110_ext_portfolio": P110_ext_portfolio.create_pipeline(),
             "P120_ext_investpy": P120_ext_investpy.create_pipeline(),
             "P130_ext_alpha_vantage": P130_ext_alpha_vantage.create_pipeline(),
+            "P150_ext_justetf": P150_ext_justetf.create_pipeline(),
             "P200_eng_dividends": P200_eng_dividends.create_pipeline(),
+            "P205_eng_ETF_dividends": P205_eng_ETF_dividends.create_pipeline(),
             "P210_eng_stock_objects": P210_eng_stock_objects.create_pipeline(),
             "P300_strat001_hma_distributions": P300_strat001_hma_distributions.create_pipeline(),
-            }
-
-        default = {
-            "__default__": (
-                pipelines["P100_ext_freetrade"] + 
-                pipelines["P110_ext_portfolio"] + 
-                pipelines["P120_ext_investpy"] + 
-                pipelines["P130_ext_alpha_vantage"] + 
-                pipelines["P200_eng_dividends"] + 
-                pipelines["P210_eng_stock_objects"] + 
-                pipelines["P300_strat001_hma_distributions"] 
-            )
         }
 
-        return {**pipelines, **default}
+        runs = {
+            "__default__": (
+                pipelines["P100_ext_freetrade"]
+                + pipelines["P110_ext_portfolio"]
+                + pipelines["P120_ext_investpy"]
+                + pipelines["P130_ext_alpha_vantage"]
+                + pipelines["P150_ext_justetf"]
+                + pipelines["P200_eng_dividends"]
+                + pipelines["P205_eng_ETF_dividends"]
+                + pipelines["P210_eng_stock_objects"]
+                + pipelines["P300_strat001_hma_distributions"]
+            ),
+            "ETF_dividend_strategy": (
+                pipelines["P100_ext_freetrade"] 
+                + pipelines["P150_ext_justetf"]
+                + pipelines["P205_eng_ETF_dividends"]
+            ),
+        }
 
+        return {**pipelines, **runs}
 
     @hook_impl
     def register_config_loader(self, conf_paths: Iterable[str]) -> ConfigLoader:
         return TemplatedConfigLoader(
             conf_paths,
             globals_pattern="*globals.yml",  # read the globals dictionary from project config
-            globals_dict={  # extra keys to add to the globals dictionary, take precedence over globals_pattern
-            },
+            globals_dict={},  # extra keys to add to the globals dictionary, take precedence over globals_pattern
         )
 
     @hook_impl

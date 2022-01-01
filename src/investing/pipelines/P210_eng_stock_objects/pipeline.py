@@ -34,16 +34,19 @@ generated using Kedro 0.17.0
 from kedro.pipeline import Pipeline, node
 from .nodes import create_stock_objects
 
+
 def create_pipeline(**kwargs):
-    return Pipeline([
-        node(
-            func=create_stock_objects,
-            inputs=[
-                'int_parts_alphavantage_etf_historic_cleansed',
-                'raw_parts_investpy_etf_information',
-                'primary_csv_etf_latest_dividends'
-            ],
-            outputs='primary_parts_ETF_stock_objects',
-            name='P210_create_stock_objects'
-        )
-    ])
+    return Pipeline(
+        [
+            node(
+                func=create_stock_objects,
+                inputs=[
+                    "int_parts_alphavantage_etf_historic_cleansed",
+                    "raw_parts_investpy_etf_information",
+                    "primary_csv_etf_latest_dividends",
+                ],
+                outputs="primary_parts_ETF_stock_objects",
+                name="P210_create_stock_objects",
+            )
+        ]
+    )

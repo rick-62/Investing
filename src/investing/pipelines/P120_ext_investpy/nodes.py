@@ -43,7 +43,7 @@ log = logging.getLogger(__name__)
 
 
 def load_investpy_stock_lists():
-    '''Retrieve stock lists as dataframe tables, from investpy library'''
+    """Retrieve stock lists as dataframe tables, from investpy library"""
 
     stocks = investpy.get_stocks()
     etfs = investpy.get_etfs()
@@ -52,60 +52,69 @@ def load_investpy_stock_lists():
     return stocks, etfs, indices
 
 
-def create_freetrade_investpy_etf_list(freetrade: pd.DataFrame, investpy_etfs: pd.DataFrame):
-    '''
+def create_freetrade_investpy_etf_list(
+    freetrade: pd.DataFrame, investpy_etfs: pd.DataFrame
+):
+    """
     Join Freetrade list with investpy stock, 
     to create relevant list of etfs
     Joining keys: ISIN, currency and stock_exchange
-    '''
+    """
     return pd.merge(
-        freetrade, investpy_etfs, 
-        on=['isin', 'currency', 'stock_exchange'], 
-        how='inner', suffixes=('_ft', '')
-        )
+        freetrade,
+        investpy_etfs,
+        on=["isin", "currency", "stock_exchange"],
+        how="inner",
+        suffixes=("_ft", ""),
+    )
 
 
-def download_etf_investpy_historic(etfs: pd.DataFrame, from_date: str, sleep: Dict) -> Dict:
-    '''Download investpy ETF historical data, for Freetrade ETFs'''
+def download_etf_investpy_historic(
+    etfs: pd.DataFrame, from_date: str, sleep: Dict
+) -> Dict:
+    """Download investpy ETF historical data, for Freetrade ETFs"""
 
-    today = pd.to_datetime('today').strftime("%d/%m/%Y")
+    today = pd.to_datetime("today").strftime("%d/%m/%Y")
 
     parts = {}
-    
-    warnings.filterwarnings('ignore')
+
+    warnings.filterwarnings("ignore")
 
     for _, row in etfs.iterrows():
 
         file_name = f"etf_{row.symbol_ft}_{row['isin']}"
 
-        time.sleep(sleep['normal'])
+        time.sleep(sleep["normal"])
 
         try:
             parts[file_name] = investpy.get_etf_historical_data(
-                row['name'], row.country, 
-                stock_exchange=row.stock_exchange, 
-                from_date=from_date, to_date=today, 
-                as_json=False, order='ascending'
+                row["name"],
+                row.country,
+                stock_exchange=row.stock_exchange,
+                from_date=from_date,
+                to_date=today,
+                as_json=False,
+                order="ascending",
             )
 
             log.debug(f"Download complete (ETF investpy historic): {file_name}")
 
         except:
             log.warning(f"Download FAILED (ETF investpy historic): {file_name}")
-            time.sleep(sleep['error'])
+            time.sleep(sleep["error"])
 
-    warnings.filterwarnings('default')
+    warnings.filterwarnings("default")
 
     log.info(f"{len(parts)} downloaded")
-    
+
     return parts
 
 
 def download_etf_investpy_information(etfs: pd.DataFrame, sleep: Dict) -> Dict:
-    '''
+    """
     Get latest investpy ETF information, for Freetrade ETFs: 
     latest price range, market cap etc.
-    '''
+    """
 
     info = {}
 
@@ -113,19 +122,20 @@ def download_etf_investpy_information(etfs: pd.DataFrame, sleep: Dict) -> Dict:
 
         file_name = f"etf_{row.symbol_ft}_{row['isin']}"
 
-        time.sleep(sleep['normal'])
+        time.sleep(sleep["normal"])
 
         try:
-            info[file_name] = investpy.get_etf_information(row['name'], row.country, as_json=True)
+            info[file_name] = investpy.get_etf_information(
+                row["name"], row.country, as_json=True
+            )
             log.debug(f"Download complete (ETF investpy information): {file_name}")
 
         except:
             log.warning(f"Download FAILED (ETF investpy information): {file_name}")
-            time.sleep(sleep['error'])
+            time.sleep(sleep["error"])
 
-    warnings.filterwarnings('default')
+    warnings.filterwarnings("default")
 
     log.info(f"{len(info)} downloaded")
-    
-    return info
 
+    return info

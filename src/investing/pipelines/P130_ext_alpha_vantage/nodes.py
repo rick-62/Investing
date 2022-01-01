@@ -41,34 +41,40 @@ from alpha_vantage.timeseries import TimeSeries
 log = logging.getLogger(__name__)
 
 
-def download_etf_alphavantage_historic(etfs: pd.DataFrame, sleep: Dict[str, int], access_key: str) -> Dict[str, pd.DataFrame]:
-    '''
+def download_etf_alphavantage_historic(
+    etfs: pd.DataFrame, sleep: Dict[str, int], access_key: str
+) -> Dict[str, pd.DataFrame]:
+    """
     download historic data from Alpha Vantage, including dividends and splits,
     using pre-joined Freetrade/investpy etf list
-    '''
+    """
 
     ts = TimeSeries(access_key)
 
     data = {}
     for symbol in etfs.symbol_alphavantage:
-        time.sleep(sleep['normal'])
+        time.sleep(sleep["normal"])
         try:
-            historic, meta = ts.get_daily_adjusted(symbol, outputsize='full')
-            data[symbol] = pd.DataFrame.from_dict(historic, orient='index', dtype='float')
+            historic, meta = ts.get_daily_adjusted(symbol, outputsize="full")
+            data[symbol] = pd.DataFrame.from_dict(
+                historic, orient="index", dtype="float"
+            )
 
             log.debug(f"Download complete (Alpha Vantage ETF historic): {symbol}")
 
         except:
             log.warning(f"Download FAILED (Alpha Vantage ETF historic): {symbol}")
-            time.sleep(sleep['error'])
+            time.sleep(sleep["error"])
 
     log.info(f"{len(data)} downloaded")
-        
+
     return data
 
 
-def cleanse_etf_alphavantage_historic(historic: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
-    '''cleanse Alpha Vantage historic data'''
+def cleanse_etf_alphavantage_historic(
+    historic: Dict[str, pd.DataFrame]
+) -> Dict[str, pd.DataFrame]:
+    """cleanse Alpha Vantage historic data"""
 
     data = {}
 
@@ -76,21 +82,22 @@ def cleanse_etf_alphavantage_historic(historic: Dict[str, pd.DataFrame]) -> Dict
 
         # rename columns
         stock = (
-            value().rename(
-                errors='raise',
+            value()
+            .rename(
+                errors="raise",
                 columns={
-                    'Unnamed: 0': 'date',
-                    '1. open': 'open',
-                    '2. high': 'high',
-                    '3. low' : 'low',
-                    '4. close': 'close',
-                    '5. adjusted close': 'adjusted_close',
-                    '6. volume': 'volume',
-                    '7. dividend amount': 'dividend',
-                    '8. split coefficient': 'split_coefficient'
+                    "Unnamed: 0": "date",
+                    "1. open": "open",
+                    "2. high": "high",
+                    "3. low": "low",
+                    "4. close": "close",
+                    "5. adjusted close": "adjusted_close",
+                    "6. volume": "volume",
+                    "7. dividend amount": "dividend",
+                    "8. split coefficient": "split_coefficient",
                 },
             )
-            .sort_values('date', ascending=True)
+            .sort_values("date", ascending=True)
         )
 
         data[key] = stock

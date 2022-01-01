@@ -33,15 +33,17 @@ generated using Kedro 0.17.0
 
 from kedro.pipeline import Pipeline, node
 
-from .nodes import cleanse_freetrade
+from .nodes import transform_freetrade
+
 
 def create_pipeline(**kwargs):
-    return Pipeline([
-        node(
-            func=cleanse_freetrade,
-            inputs=['raw_csv_freetrade', 'parameters'],
-            outputs='int_csv_freetrade_cleansed',
-            name='cleanse_freetrade'
-        )
-    ])
-
+    return Pipeline(
+        [
+            node(
+                func=transform_freetrade,
+                inputs=["raw_csv_freetrade", "parameters"],
+                outputs="int_csv_freetrade_cleansed",
+                name="cleanse_freetrade",
+            )
+        ]
+    )

@@ -39,21 +39,23 @@ from .nodes import (
 
 
 def create_pipeline(**kwargs):
-    return Pipeline([
-        node(
-            func=download_etf_alphavantage_historic,
-            inputs=[
-                'int_csv_freetrade_investpy_etf_list',
-                'params:sleep', 
-                'params:alpha_vantage_access_key'
-            ],
-            outputs='raw_parts_alphavantage_etf_historic',
-            name='P130_download_etf_alphavantage_historic'
-        ),
-        node(
-            func=cleanse_etf_alphavantage_historic,
-            inputs='raw_parts_alphavantage_etf_historic',
-            outputs='int_parts_alphavantage_etf_historic_cleansed',
-            name='P130_cleanse_etf_alphavantage_historic'
-        )
-    ])
+    return Pipeline(
+        [
+            node(
+                func=download_etf_alphavantage_historic,
+                inputs=[
+                    "int_csv_freetrade_investpy_etf_list",
+                    "params:sleep",
+                    "params:alpha_vantage_access_key",
+                ],
+                outputs="raw_parts_alphavantage_etf_historic",
+                name="P130_download_etf_alphavantage_historic",
+            ),
+            node(
+                func=cleanse_etf_alphavantage_historic,
+                inputs="raw_parts_alphavantage_etf_historic",
+                outputs="int_parts_alphavantage_etf_historic_cleansed",
+                name="P130_cleanse_etf_alphavantage_historic",
+            ),
+        ]
+    )
