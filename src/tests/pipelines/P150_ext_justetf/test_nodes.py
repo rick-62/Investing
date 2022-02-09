@@ -22,7 +22,7 @@ def load_sample_response_data(file_name: str) -> BeautifulSoup:
     with open(Path(this_path, file_name), "rb") as pkl:
         response = pickle.load(pkl)
     assert len(response.text) > 1000
-    return BeautifulSoup(response.text, 'xml')
+    return BeautifulSoup(response.text, 'html5lib')
 
 
 @pytest.fixture(params=[

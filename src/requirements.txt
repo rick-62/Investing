@@ -5,9 +5,14 @@ isort>=4.3.21, <5.0
 jupyter~=1.0
 jupyter_client>=5.1, < 7.0
 jupyterlab==0.31.1
-kedro==0.17.0
+kedro[pandas.CSVDataSet,pandas.ExcelDataSet]==0.17.0
 nbstripout==0.3.3
 pytest-cov~=2.5
 pytest-mock>=1.7.1, <2.0
 pytest~=6.1.2
 wheel==0.32.2
+pandas==1.1.5
+beautifulsoup4==4.9.3
+html5lib==1.1
+lxml==4.6.2
+s3fs>=0.3.0,<0.5

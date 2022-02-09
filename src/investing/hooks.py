@@ -39,20 +39,20 @@ from kedro.pipeline import Pipeline
 from kedro.versioning import Journal
 
 from investing.pipelines.P100_ext_freetrade import pipeline as P100_ext_freetrade
-from investing.pipelines.P110_ext_portfolio import pipeline as P110_ext_portfolio
-from investing.pipelines.P120_ext_investpy import pipeline as P120_ext_investpy
-from investing.pipelines.P130_ext_alpha_vantage import (
-    pipeline as P130_ext_alpha_vantage,
-)
+# from investing.pipelines.P110_ext_portfolio import pipeline as P110_ext_portfolio
+# from investing.pipelines.P120_ext_investpy import pipeline as P120_ext_investpy
+# from investing.pipelines.P130_ext_alpha_vantage import (
+    # pipeline as P130_ext_alpha_vantage,
+# )
 from investing.pipelines.P150_ext_justetf import pipeline as P150_ext_justetf
-from investing.pipelines.P200_eng_dividends import pipeline as P200_eng_dividends
+# from investing.pipelines.P200_eng_dividends import pipeline as P200_eng_dividends
 from investing.pipelines.P205_eng_ETF_dividends import pipeline as P205_eng_ETF_dividends
-from investing.pipelines.P210_eng_stock_objects import (
-    pipeline as P210_eng_stock_objects,
-)
-from investing.pipelines.P300_strat001_hma_distributions import (
-    pipeline as P300_strat001_hma_distributions,
-)
+# from investing.pipelines.P210_eng_stock_objects import (
+    # pipeline as P210_eng_stock_objects,
+# )
+# from investing.pipelines.P300_strat001_hma_distributions import (
+    # pipeline as P300_strat001_hma_distributions,
+# )
 
 warnings.filterwarnings(
     "ignore", category=DeprecationWarning
@@ -71,27 +71,27 @@ class ProjectHooks:
 
         pipelines = {
             "P100_ext_freetrade": P100_ext_freetrade.create_pipeline(),
-            "P110_ext_portfolio": P110_ext_portfolio.create_pipeline(),
-            "P120_ext_investpy": P120_ext_investpy.create_pipeline(),
-            "P130_ext_alpha_vantage": P130_ext_alpha_vantage.create_pipeline(),
+            # "P110_ext_portfolio": P110_ext_portfolio.create_pipeline(),
+            # "P120_ext_investpy": P120_ext_investpy.create_pipeline(),
+            # "P130_ext_alpha_vantage": P130_ext_alpha_vantage.create_pipeline(),
             "P150_ext_justetf": P150_ext_justetf.create_pipeline(),
-            "P200_eng_dividends": P200_eng_dividends.create_pipeline(),
+            # "P200_eng_dividends": P200_eng_dividends.create_pipeline(),
             "P205_eng_ETF_dividends": P205_eng_ETF_dividends.create_pipeline(),
-            "P210_eng_stock_objects": P210_eng_stock_objects.create_pipeline(),
-            "P300_strat001_hma_distributions": P300_strat001_hma_distributions.create_pipeline(),
+            # "P210_eng_stock_objects": P210_eng_stock_objects.create_pipeline(),
+            # "P300_strat001_hma_distributions": P300_strat001_hma_distributions.create_pipeline(),
         }
 
         runs = {
             "__default__": (
                 pipelines["P100_ext_freetrade"]
-                + pipelines["P110_ext_portfolio"]
-                + pipelines["P120_ext_investpy"]
-                + pipelines["P130_ext_alpha_vantage"]
+                # + pipelines["P110_ext_portfolio"]
+                # + pipelines["P120_ext_investpy"]
+                # + pipelines["P130_ext_alpha_vantage"]
                 + pipelines["P150_ext_justetf"]
-                + pipelines["P200_eng_dividends"]
+                # + pipelines["P200_eng_dividends"]
                 + pipelines["P205_eng_ETF_dividends"]
-                + pipelines["P210_eng_stock_objects"]
-                + pipelines["P300_strat001_hma_distributions"]
+                # + pipelines["P210_eng_stock_objects"]
+                # + pipelines["P300_strat001_hma_distributions"]
             ),
             "ETF_dividend_strategy": (
                 pipelines["P100_ext_freetrade"] 

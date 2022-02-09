@@ -98,10 +98,10 @@ def _extract_expense_ratio(soup: BeautifulSoup) -> tuple:
     return expense_ratio, expense_ratio_frequency
 
 
-def _scrape_key_data_from_justetf_reponse(response: requests.Response) -> Dict:
+def _scrape_key_data_from_justetf_response(response: requests.Response) -> Dict:
     '''Extracts only required data from a single JustETF response'''
 
-    soup = BeautifulSoup(response.text, 'xml')
+    soup = BeautifulSoup(response.text, 'html5lib')
     
     quote_currency, latest_quote = _extract_quote_data(soup)
     date_latest_quote = _extract_latest_quote_date(soup)
@@ -137,11 +137,12 @@ def verify_sample_justetf_webscrape(headers: Dict) -> None:
     '''Performs live test of sample webpage extracted from JustETF'''
     sample_response = _download_justetf_webpage(isin='LU1781541096', headers=headers)
     sample_response.raise_for_status()
-    sample_data = _scrape_key_data_from_justetf_reponse(sample_response)
+    sample_data = _scrape_key_data_from_justetf_response(sample_response)
     assert not sample_data['dividend_currency'] is None
     assert not sample_data['one_year_dividend'] is None
     assert sample_data['quote_currency']  == 'GBP' 
     assert sample_data['expense_ratio'].endswith('%')
+    return True
 
 
 def download_pages_from_justetf(etf_isins: frozenset, headers: Dict, dummy: None=None, sleep: int=1) -> Dict:
@@ -152,6 +153,7 @@ def download_pages_from_justetf(etf_isins: frozenset, headers: Dict, dummy: None
     optional sleep argument ensures reasonable time between requests.
     '''
     responses = {}
+
     for isin in etf_isins:
         time.sleep(sleep)
         response = _download_justetf_webpage(isin, headers=headers)
@@ -162,10 +164,10 @@ def download_pages_from_justetf(etf_isins: frozenset, headers: Dict, dummy: None
     return responses
 
 
-def scrape_key_data_from_justetf_reponses(responses: Dict[str, requests.Response]) -> Dict:
+def scrape_key_data_from_justetf_responses(responses: Dict[str, requests.Response]) -> Dict:
     '''Extracts key data from JustETF responses'''
     return {
-        isin: _scrape_key_data_from_justetf_reponse(response()) 
+        isin: _scrape_key_data_from_justetf_response(response()) 
         for isin, response in responses.items()
         }
 

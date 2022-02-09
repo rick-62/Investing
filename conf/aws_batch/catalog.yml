@@ -8,7 +8,7 @@ _csv: &csv
   type: pandas.CSVDataSet
   fs_args:
     open_args_save:
-      # mode: "wb"
+      mode: "wb"
       encoding: "utf-8"
 
 
@@ -21,8 +21,12 @@ raw_csv_freetrade:
   filepath: ${data_parent}\01_raw\manual\freetrade_stocks.csv
 
 int_csv_freetrade_cleansed:
-  type: MemoryDataSet
+  filepath: ${data_parent}\02_intermediate\freetrade_cleansed.csv
+  load_args:
+    index_col: isin
+  <<: *csv
   
+
 ######################################
 ##### P110_ext_portfolio
 ######################################

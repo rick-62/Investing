@@ -37,7 +37,7 @@ from .nodes import (
     filter_freetrade_stocks,
     verify_sample_justetf_webscrape,
     download_pages_from_justetf,
-    scrape_key_data_from_justetf_reponses,
+    scrape_key_data_from_justetf_responses,
     create_etf_dividend_summary,
 )
 
@@ -52,7 +52,7 @@ def create_pipeline(**kwargs):
                 name="filter_freetrade_stocks"
             ),
             node(
-                func=lambda df: frozenset(df['isin']),
+                func=lambda df: frozenset(df.index),
                 inputs="inmem_freetrade_filtered",
                 outputs="inmem_etf_isins",
                 name="extract_Freetrade_ETF_isins",
@@ -70,7 +70,7 @@ def create_pipeline(**kwargs):
                 name="scrape_justetf",
             ),
             node(
-                func=scrape_key_data_from_justetf_reponses,
+                func=scrape_key_data_from_justetf_responses,
                 inputs="raw_dict_justetf_responses",
                 outputs="inmem_justetf_data",
                 name="extract_justetf_data"

@@ -62,4 +62,7 @@ def transform_freetrade(ft: pd.DataFrame, params: Dict) -> pd.DataFrame:
     # flag ETF stock
     ft["ETF_flag"] = ft["description"].str.contains(" ETF")
 
+    # apply index
+    ft.set_index('isin', inplace=True)
+
     return ft
